@@ -3,8 +3,9 @@ import "@babylonjs/inspector"
 import "@babylonjs/loaders/glTF"
 import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core"
 import State from "./state"
+import BaseElement from "./base"
 
-class App {
+class App implements BaseElement {
     constructor() {
         // create the canvas html element and attach it to the webpage
         const canvas = document.createElement("canvas")
@@ -14,8 +15,8 @@ class App {
         document.body.appendChild(canvas)
 
         // initialize babylon scene and engine
-        const engine = new Engine(canvas, true)
-        State.scene = new Scene(engine)
+        State.engine = new Engine(canvas, true)
+        State.scene = new Scene(State.engine)
 
         const camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), State.scene)
         camera.attachControl(canvas, true)
@@ -32,11 +33,13 @@ class App {
                 }
             }
         })
+    }
 
+    render() {
         // run the main render loop
-        engine.runRenderLoop(() => {
+        State.engine.runRenderLoop(() => {
             State.scene.render()
         })
     }
 }
-new App()
+new App().render()
