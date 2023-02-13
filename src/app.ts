@@ -20,8 +20,8 @@ class App implements BaseElement {
 
         const camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), State.scene)
         camera.attachControl(canvas, true)
-        const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), State.scene)
-        const sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, State.scene)
+        const light1 = new HemisphericLight("light1", new Vector3(1, 1, 0), State.scene)
+        const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, State.scene)
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
