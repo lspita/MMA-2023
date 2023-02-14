@@ -1,11 +1,11 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
 import "@babylonjs/loaders/glTF"
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core"
-import State from "./state"
-import BaseElement from "./base"
+import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
+import State from "./core/state"
+import TestSphere from "./components/testsphere"
 
-class App implements BaseElement {
+class App {
     constructor() {
         // create the canvas html element and attach it to the webpage
         const canvas = document.createElement("canvas")
@@ -14,14 +14,21 @@ class App implements BaseElement {
         canvas.id = "gameCanvas"
         document.body.appendChild(canvas)
 
-        // initialize babylon scene and engine
+        // initialize babylon scene, engine and camera
         State.engine = new Engine(canvas, true)
         State.scene = new Scene(State.engine)
 
-        const camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), State.scene)
-        camera.attachControl(canvas, true)
-        const light1 = new HemisphericLight("light1", new Vector3(1, 1, 0), State.scene)
-        const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, State.scene)
+        State.camera = new ArcRotateCamera(
+            'cam',
+            -Math.PI / 2, 0.7,
+            10,
+            Vector3.Zero(),
+            State.scene, true
+        )
+        State.camera.attachControl(canvas, true)
+        State.light = new PointLight("light", Vector3.Up(), State.scene)
+        State.light.parent = State.camera
+        new TestSphere().render()
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
@@ -33,13 +40,12 @@ class App implements BaseElement {
                 }
             }
         })
-    }
 
-    render() {
         // run the main render loop
         State.engine.runRenderLoop(() => {
             State.scene.render()
         })
     }
 }
-new App().render()
+
+new App()
