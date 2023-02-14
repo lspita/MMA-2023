@@ -39,7 +39,9 @@ class App {
                 }
             }
         })
-
+        window.addEventListener("resize", _ => {
+            State.engine.resize(true)
+        })
         // run the main render loop
         State.engine.runRenderLoop(() => {
             State.scene.render()
