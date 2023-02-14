@@ -5,6 +5,7 @@ class State {
     static engine: Engine
     static camera: Camera
     static light: Light
+    static deltaTime: number
 }
 
 export default State

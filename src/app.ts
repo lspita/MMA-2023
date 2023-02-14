@@ -2,7 +2,7 @@ import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
 import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
 import State from "./core/state"
-import TestSphere from "./components/ball"
+import Ball from "./components/ball"
 
 class App {
     constructor() {
@@ -20,14 +20,14 @@ class App {
         State.camera = new ArcRotateCamera(
             'cam',
             -Math.PI / 2, 0.7,
-            10,
+            30,
             Vector3.Zero(),
             State.scene, true
         )
         State.camera.attachControl(canvas, true)
         State.light = new PointLight("light", Vector3.Up(), State.scene)
         State.light.parent = State.camera
-        new TestSphere().render()
+        new Ball("golfball").render()
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
@@ -43,6 +43,9 @@ class App {
             State.engine.resize(true)
         })
         // run the main render loop
+        State.scene.registerBeforeRender(() => {
+            State.deltaTime = performance.now() * 0.001
+        })
         State.engine.runRenderLoop(() => {
             State.scene.render()
         })

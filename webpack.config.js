@@ -28,6 +28,10 @@ module.exports = {
                 use: "ts-loader",
                 exclude: /node_modules/,
             },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif|obj|glb|gltf|babylon)$/i,
+                type: 'asset/resource',
+            }
         ],
     },
     plugins: [
