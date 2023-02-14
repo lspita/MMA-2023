@@ -1,9 +1,8 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import "@babylonjs/loaders/glTF"
 import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
 import State from "./core/state"
-import TestSphere from "./components/testsphere"
+import TestSphere from "./components/ball"
 
 class App {
     constructor() {
