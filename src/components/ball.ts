@@ -1,4 +1,3 @@
-import { MeshBuilder, Vector3 } from "@babylonjs/core"
 import BaseComponent from "../core/base"
 import ModelImporter from "../core/importer"
 import State from "../core/state"
