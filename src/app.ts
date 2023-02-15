@@ -55,7 +55,7 @@ class App {
         ball.mesh.position.y = 5
         ball.render()
 
-        // createGrid(State.scene, 200)
+        createGrid(State.scene, 200)
         State.scene.createDefaultEnvironment({
             skyboxColor: Color3.Teal(),
         })

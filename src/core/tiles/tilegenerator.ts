@@ -1,10 +1,61 @@
-import Tile from "./tile"
+import { Vector3 } from "@babylonjs/core"
+import Tile, { Direction } from "./tile"
+
+type TileFunction = (name: string, size: number) => Tile
+type DirectionInfo = {
+    [x in Direction]: {
+        step: Vector3
+        opposite: Direction
+    }
+}
+
+const dirInfo: DirectionInfo = {
+    north: {
+        step: Vector3.Forward(),
+        opposite: "south"
+    },
+    south: {
+        step: Vector3.Backward(),
+        opposite: "north"
+    },
+    east: {
+        step: Vector3.Right(),
+        opposite: "west"
+    },
+    west: {
+        step: Vector3.Left(),
+        opposite: "east"
+    }
+}
+
 
 export default class TileGenerator {
     numberOfTiles: number
     tileSize: number
     step: number
-    #prevTile: Tile = null
+
+    static readonly possibleFollowings: { [x in Direction]: TileFunction[] } = {
+        east: [
+            TileGenerator.StraightX,
+            TileGenerator.WestSouth,
+            TileGenerator.NorthWest
+        ],
+        north: [
+            TileGenerator.StraightZ,
+            TileGenerator.SouthEast,
+            TileGenerator.WestSouth
+        ],
+        west: [
+            TileGenerator.StraightX,
+            TileGenerator.EastNorth,
+            TileGenerator.SouthEast
+        ],
+        south: [
+            TileGenerator.StraightZ,
+            TileGenerator.NorthWest,
+            TileGenerator.EastNorth
+        ]
+    }
 
     constructor(numberOfTiles: number, tileSize = 10) {
         this.numberOfTiles = numberOfTiles
@@ -13,60 +64,67 @@ export default class TileGenerator {
     }
 
     startGeneration() {
-        this.#prevTile = this.StartTile("step0")
+        let directions: Direction[]
+        let dir: Direction
+        let tileFunc = TileGenerator.StartTile
+        let prevTile = tileFunc("step0", this.tileSize)
         for (let i = 1; i <= this.numberOfTiles; i++) {
-            let tile = this.StraightZ(`step${i}`)
-            this.#prevTile.mesh.addChild(tile.mesh)
-            tile.mesh.position.z = this.step
-            this.#prevTile = tile
+            let tile: Tile
+            directions = prevTile.getDirections()
+            dir = directions[Math.floor(Math.random() * directions.length)]
+            if (i < this.numberOfTiles) {
+                let ok = false
+                do {
+                    let followings = TileGenerator.possibleFollowings[dir]
+                    tileFunc = followings[Math.floor(Math.random() * followings.length)]
+                    tile = tileFunc(`step${i}${tileFunc.name}`, this.tileSize)
+                } while (!ok)
+            }
+            else {
+                tile = TileGenerator.EndTile(`step${i}`, this.tileSize, dirInfo[dir].opposite)
+            }
+            tile.walls[dirInfo[dir].opposite] = true
+            prevTile.mesh.addChild(tile.mesh)
+            tile.mesh.position = dirInfo[dir].step.scale(this.step)
+            prevTile = tile
         }
     }
 
-    StartTile(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("north")
+    static TileWithoutWalls(name: string, size: number, ...walls: Direction[]) {
+        let tile = new Tile(name, size)
+        walls.forEach(wall => tile.destroyWall(wall))
         return tile
     }
 
-    StraightZ(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("south")
-        tile.destroyWall("north")
-        return tile
+    static StartTile(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "north")
     }
 
-    StraightX(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("west")
-        tile.destroyWall("east")
-        return tile
+    static EndTile(name: string, size: number, wall: Direction) {
+        return TileGenerator.TileWithoutWalls(name, size, wall)
     }
 
-    SouthEast(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("south")
-        tile.destroyWall("east")
-        return tile
+    static StraightZ(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "north", "south")
     }
 
-    EastNorth(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("east")
-        tile.destroyWall("north")
-        return tile
+    static StraightX(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "west", "east")
     }
 
-    NorthWest(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("north")
-        tile.destroyWall("west")
-        return tile
+    static SouthEast(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "south", "east")
     }
 
-    WestSouth(name: string) {
-        let tile = new Tile(name, this.tileSize)
-        tile.destroyWall("west")
-        tile.destroyWall("south")
-        return tile
+    static EastNorth(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "east", "north")
+    }
+
+    static NorthWest(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "north", "west")
+    }
+
+    static WestSouth(name: string, size: number) {
+        return TileGenerator.TileWithoutWalls(name, size, "west", "south")
     }
 }

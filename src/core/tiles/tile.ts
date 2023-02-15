@@ -1,10 +1,10 @@
 import { Material, Mesh, MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 
-const directions = ["east", "north", "west", "south"] as const
-type Direction = typeof directions[number]
+type Direction = typeof Tile.directions[number]
 
 export default class Tile extends BaseElement {
+    static readonly directions = ["east", "north", "west", "south"] as const
     readonly walls: { [x in Direction]: boolean } = {
         east: false,
         north: false,
@@ -19,10 +19,10 @@ export default class Tile extends BaseElement {
     constructor(name: string, size = 10) {
         super(name)
         this.#size = size
-        if (Tile.groundMat == null) {
+        if (Tile.groundMat === null) {
             Tile.#generateGroundMat()
         }
-        if (Tile.wallMat == null) {
+        if (Tile.wallMat === null) {
             Tile.#generateWallMat()
         }
 
@@ -32,7 +32,7 @@ export default class Tile extends BaseElement {
         this.mesh.material = Tile.groundMat
 
         for (let i = 0; i < 4; i++) {
-            this.createWall(directions[i])
+            this.createWall(Tile.directions[i])
         }
     }
 
@@ -60,7 +60,7 @@ export default class Tile extends BaseElement {
     }
 
     createWall(direction: Direction) {
-        let i = directions.indexOf(direction)
+        let i = Tile.directions.indexOf(direction)
         let wall = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}Wall`,
             { width: 1, height: this.#size, depth: this.#size - 2 }
@@ -72,7 +72,7 @@ export default class Tile extends BaseElement {
         wall.material = Tile.wallMat
         this.mesh.addChild(wall)
 
-        let nextDir = directions[(i + 1 == directions.length ? 0 : i + 1)]
+        let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
         let wallAngle = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}${nextDir}WallAngle`,
             { width: 1, height: this.#size, depth: 1 }
@@ -83,7 +83,7 @@ export default class Tile extends BaseElement {
         wallAngle.material = Tile.wallMat
         this.mesh.addChild(wallAngle)
 
-        let prevDir = directions[(i - 1 == -1 ? directions.length - 1 : i - 1)]
+        let prevDir = Tile.directions[(i - 1 === -1 ? Tile.directions.length - 1 : i - 1)]
         let prevWallAngle = MeshBuilder.CreateBox(
             `${this.mesh.name}${prevDir}${direction}WallAngle`,
             { width: 1, height: this.#size, depth: 1 }
@@ -99,7 +99,7 @@ export default class Tile extends BaseElement {
     }
 
     getDirections() {
-        return Object.keys(this.walls).filter((value: Direction) => this.walls[value] == true)
+        return Object.keys(this.walls).filter((value: Direction) => this.walls[value] === false) as Direction[]
     }
 }
 
