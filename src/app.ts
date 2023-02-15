@@ -4,6 +4,7 @@ import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
+import Tile from "./core/elements/tile"
 
 class App {
     constructor() {
@@ -48,7 +49,9 @@ class App {
         })
 
         const ball = new Ball("golfball")
+        ball.mesh.position.y = 5
         ball.render()
+        new Tile("testtile").render()
 
         createGrid(State.scene, 20)
         State.engine.runRenderLoop(() => {
