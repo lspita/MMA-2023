@@ -3,8 +3,8 @@ import { Color4, MeshBuilder, Scene, Vector3 } from "@babylonjs/core"
 export default function createGrid(scene: Scene, size: number) {
     let m = 50
     let r = size
-    let pts = []
-    let colors = []
+    let pts: Vector3[][] = []
+    let colors: Color4[][] = []
     let c1 = new Color4(0.7, 0.7, 0.7, 0.5)
     let c2 = new Color4(0.5, 0.5, 0.5, 0.25)
     let cRed = new Color4(0.8, 0.1, 0.1)
@@ -12,7 +12,7 @@ export default function createGrid(scene: Scene, size: number) {
     let cBlue = new Color4(0.1, 0.1, 0.8)
 
     let color = c1
-    function line(x0, y0, z0, x1, y1, z1) {
+    function line(x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) {
         pts.push([new Vector3(x0, y0, z0), new Vector3(x1, y1, z1)])
         colors.push([color, color])
     }

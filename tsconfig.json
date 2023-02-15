@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "noResolve": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "sourceMap": true,
     "preserveConstEnums": true,
     "lib": [
