@@ -3,6 +3,7 @@ import "@babylonjs/inspector"
 import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
+import createGrid from "./core/debug"
 
 class App {
     constructor() {
@@ -46,9 +47,10 @@ class App {
             State.deltaTime = performance.now() * 0.001
         })
 
-        const golfball = new Ball("golfball1")
-        golfball.render()
+        const ball = new Ball("golfball")
+        ball.render()
 
+        createGrid(State.scene, 20)
         State.engine.runRenderLoop(() => {
             State.scene.render()
         })

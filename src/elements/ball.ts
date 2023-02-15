@@ -1,4 +1,4 @@
-import ModelElement from "../core/elements/modelelement"
+import ModelElement from "../core/elements/modelElement"
 
 export default class Ball extends ModelElement {
     constructor(name: string) {
