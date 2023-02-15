@@ -45,11 +45,9 @@ class App {
         State.scene.registerBeforeRender(() => {
             State.deltaTime = performance.now() * 0.001
         })
-        new Ball("golfball1").render()
-        const ball = new Ball("golfball2")
-        ball.scene.registerBeforeRender(() => {
-            ball.mesh.position.x = State.deltaTime
-        })
+
+        const golfball = new Ball("golfball1")
+        golfball.render()
 
         State.engine.runRenderLoop(() => {
             State.scene.render()
