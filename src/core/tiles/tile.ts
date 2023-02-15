@@ -1,5 +1,5 @@
 import { Material, Mesh, MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
-import BaseElement from "./base"
+import BaseElement from "../elements/base"
 
 const directions = ["east", "north", "west", "south"] as const
 type Direction = typeof directions[number]

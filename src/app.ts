@@ -4,7 +4,7 @@ import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
-import Tile from "./core/elements/tile"
+import Tile from "./core/tiles/tile"
 
 class App {
     constructor() {
