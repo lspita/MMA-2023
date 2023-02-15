@@ -27,7 +27,6 @@ class App {
         State.camera.attachControl(canvas, true)
         State.light = new PointLight("light", Vector3.Up(), State.scene)
         State.light.parent = State.camera
-        new Ball("golfball").render()
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
@@ -46,6 +45,12 @@ class App {
         State.scene.registerBeforeRender(() => {
             State.deltaTime = performance.now() * 0.001
         })
+        new Ball("golfball1").render()
+        const ball = new Ball("golfball2")
+        ball.scene.registerBeforeRender(() => {
+            ball.mesh.position.x = State.deltaTime
+        })
+
         State.engine.runRenderLoop(() => {
             State.scene.render()
         })
