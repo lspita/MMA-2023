@@ -1,4 +1,3 @@
-import { Mesh } from "@babylonjs/core"
 import ModelImporter from "../importer"
 import BaseElement from "./base"
 
