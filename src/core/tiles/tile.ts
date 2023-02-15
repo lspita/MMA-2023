@@ -97,6 +97,10 @@ export default class Tile extends BaseElement {
 
         this.walls[direction] = true
     }
+
+    getDirections() {
+        return Object.keys(this.walls).filter((value: Direction) => this.walls[value] == true)
+    }
 }
 
 export { Direction }

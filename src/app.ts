@@ -5,6 +5,7 @@ import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
 import Tile from "./core/tiles/tile"
+import TileGenerator from "./core/tiles/tilegenerator"
 
 class App {
     constructor() {
@@ -48,27 +49,12 @@ class App {
             State.deltaTime = performance.now() * 0.001
         })
 
+        const tileGenerator = new TileGenerator(5)
+        tileGenerator.startGeneration()
+
         const ball = new Ball("golfball")
         ball.mesh.position.y = 5
         ball.render()
-
-        let distance = 8
-
-        const tile = new Tile("testtile")
-        tile.destroyWall("north")
-        tile.render()
-
-        const tile2 = new Tile("testtile2")
-        tile2.destroyWall("south")
-        tile2.destroyWall("east")
-        tile2.mesh.position.z = distance
-        tile2.render()
-
-        const tile3 = new Tile("testtile3")
-        tile3.destroyWall("west")
-        tile3.mesh.position.z = distance
-        tile3.mesh.position.x = distance
-        tile3.render()
 
         createGrid(State.scene, 20)
 
