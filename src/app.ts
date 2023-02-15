@@ -1,10 +1,9 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
-import Tile from "./core/tiles/tile"
 import TileGenerator from "./core/tiles/tilegenerator"
 
 class App {
@@ -22,13 +21,13 @@ class App {
 
         State.camera = new ArcRotateCamera(
             'cam',
-            -Math.PI / 2, 0.7,
-            30,
+            -Math.PI / 4, 0.75,
+            50,
             Vector3.Zero(),
             State.scene, true
         )
         State.camera.attachControl(canvas, true)
-        State.light = new PointLight("light", Vector3.Up(), State.scene)
+        State.light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
         State.light.parent = State.camera
 
         // hide/show the Inspector
@@ -56,8 +55,10 @@ class App {
         ball.mesh.position.y = 5
         ball.render()
 
-        createGrid(State.scene, 20)
-
+        // createGrid(State.scene, 200)
+        State.scene.createDefaultEnvironment({
+            skyboxColor: Color3.Teal(),
+        })
         State.engine.runRenderLoop(() => {
             State.scene.render()
         })
