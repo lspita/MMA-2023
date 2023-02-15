@@ -3,10 +3,11 @@ import State from "./state"
 
 export default class BaseElement {
     mesh: Mesh
+    scene = State.scene
     constructor(name: string) {
         this.mesh = new Mesh(name)
     }
     render() {
-        State.scene.addMesh(this.mesh, true)
+        this.scene.addMesh(this.mesh, true)
     }
 }
