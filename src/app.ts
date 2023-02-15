@@ -2,7 +2,7 @@ import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
 import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
 import State from "./core/state"
-import Ball from "./components/ball"
+import Ball from "./elements/ball"
 
 class App {
     constructor() {

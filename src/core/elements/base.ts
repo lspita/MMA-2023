@@ -1,5 +1,5 @@
 import { Mesh } from "@babylonjs/core"
-import State from "./state"
+import State from "../state"
 
 export default class BaseElement {
     mesh: Mesh
