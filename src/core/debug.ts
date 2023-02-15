@@ -1,8 +1,8 @@
 import { Color4, MeshBuilder, Scene, Vector3 } from "@babylonjs/core"
 
-export default function createGrid(scene: Scene) {
+export default function createGrid(scene: Scene, size: number) {
     let m = 50
-    let r = 5
+    let r = size
     let pts = []
     let colors = []
     let c1 = new Color4(0.7, 0.7, 0.7, 0.5)
