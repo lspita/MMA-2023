@@ -1,10 +1,10 @@
 const path = require("path")
 const fs = require("fs")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
-const appDirectory = fs.realpathSync(process.cwd())
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-    entry: path.resolve(appDirectory, "src/app.ts"), //path to the main .ts file
+    entry: path.resolve(__dirname, "src/app.ts"), //path to the main .ts file
     output: {
         filename: "js/bundleName.js", //name for the js file that is created/compiled in memory
         clean: true,
@@ -15,7 +15,7 @@ module.exports = {
     devServer: {
         host: "0.0.0.0",
         port: 8080, //port that we're using for local host (localhost:8080)
-        static: path.resolve(appDirectory, "public"), //tells webpack to serve from the public folder
+        static: path.resolve(__dirname, "public"), //tells webpack to serve from the public folder
         hot: true,
         devMiddleware: {
             publicPath: "/",
@@ -30,14 +30,24 @@ module.exports = {
             },
             {
                 test: /\.(png|svg|jpg|jpeg|gif|obj|glb|gltf|babylon)$/i,
-                type: 'asset/resource',
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        name: 'assets/[name].[ext]',
+                    },
+                }],
             }
         ],
     },
     plugins: [
         new HtmlWebpackPlugin({
             inject: true,
-            template: path.resolve(appDirectory, "public/index.html"),
+            template: path.resolve(__dirname, "public/index.html"),
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: "public/assets", to: "assets" }
+            ]
         })
     ],
     mode: "development",

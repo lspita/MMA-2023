@@ -37,7 +37,7 @@ export default class Tile extends BaseElement {
 
     static #generateGroundMat() {
         let groundMat = new StandardMaterial("groundMat")
-        let groundTexture = new Texture(require("/assets/textures/tilefloor.png"))
+        let groundTexture = new Texture(require("/public/assets/textures/tilefloor.png"))
         groundTexture.uScale = 2
         groundTexture.vScale = 2
         groundMat.diffuseTexture = groundTexture
