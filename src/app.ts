@@ -26,6 +26,13 @@ class App {
             Vector3.Zero(),
             State.scene, true
         )
+
+        State.camera.upperBetaLimit = 1
+        State.camera.lowerBetaLimit = 0.5
+
+        State.camera.upperRadiusLimit = State.camera.radius
+        State.camera.lowerRadiusLimit = State.camera.radius/2
+
         State.camera.attachControl(canvas, true)
         let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
         let light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
