@@ -1,9 +1,10 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, PointLight } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
+import Tile from "./core/tiles/tile"
 
 class App {
     constructor() {
@@ -20,14 +21,16 @@ class App {
 
         State.camera = new ArcRotateCamera(
             'cam',
-            -Math.PI / 2, 0.7,
-            30,
+            -Math.PI / 4, 0.75,
+            50,
             Vector3.Zero(),
             State.scene, true
         )
         State.camera.attachControl(canvas, true)
-        State.light = new PointLight("light", Vector3.Up(), State.scene)
-        State.light.parent = State.camera
+        let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
+        let light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
+        light.parent = State.camera
+        light2.parent = State.camera
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
@@ -47,10 +50,46 @@ class App {
             State.deltaTime = performance.now() * 0.001
         })
 
+
         const ball = new Ball("golfball")
+        ball.mesh.position.y = 5
         ball.render()
 
-        createGrid(State.scene, 20)
+        const tile1 = new Tile("tile1")
+        tile1.destroyWall("north")
+        tile1.render()
+        const tile2 = new Tile("tile2")
+        tile2.destroyWall("north")
+        tile2.destroyWall("south")
+        tile2.mesh.position.z = 8
+        tile2.render()
+        const tile3 = new Tile("tile3")
+        tile3.destroyWall("south")
+        tile3.destroyWall("east")
+        tile3.mesh.position.z = 16
+        tile3.render()
+        const tile4 = new Tile("tile4")
+        tile4.destroyWall("west")
+        tile4.destroyWall("north")
+        tile4.mesh.position.z = 16
+        tile4.mesh.position.x = 8
+        tile4.render()
+        const tile5 = new Tile("tile5")
+        tile5.destroyWall("north")
+        tile5.destroyWall("south")
+        tile5.mesh.position.z = 24
+        tile5.mesh.position.x = 8
+        tile5.render()
+        const tile6 = new Tile("tile6")
+        tile6.destroyWall("south")
+        tile6.mesh.position.z = 32
+        tile6.mesh.position.x = 8
+        tile6.render()
+
+        createGrid(State.scene, 200)
+        State.scene.createDefaultEnvironment({
+            skyboxColor: Color3.Teal(),
+        })
         State.engine.runRenderLoop(() => {
             State.scene.render()
         })
