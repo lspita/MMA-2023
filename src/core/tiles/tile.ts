@@ -5,7 +5,6 @@ type Direction = typeof Tile.directions[number]
 
 export default class Tile extends BaseElement {
     static readonly directions = ["east", "north", "west", "south"] as const
-    static groundMat: StandardMaterial = null
     static wallMat: StandardMaterial = null
 
     readonly walls: { [x in Direction]: boolean } = {
@@ -22,17 +21,14 @@ export default class Tile extends BaseElement {
     constructor(name: string, size = 10) {
         super(name)
         this.#size = size
-        if (Tile.groundMat === null) {
-            Tile.#generateGroundMat()
-        }
-        if (Tile.wallMat === null) {
-            Tile.#generateWallMat()
-        }
-
+        this.createMaterial(Tile.material, () => {
+            Tile.material = Tile.#generateGroundMat()
+            Tile.wallMat = Tile.#generateWallMat()
+        })
 
         this.mesh.dispose()
         this.mesh = MeshBuilder.CreateBox(name, { size: this.#size - 2 })
-        this.mesh.material = Tile.groundMat
+        this.mesh.material = Tile.material
 
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
@@ -40,16 +36,18 @@ export default class Tile extends BaseElement {
     }
 
     static #generateGroundMat() {
-        Tile.groundMat = new StandardMaterial("groundMat")
+        let groundMat = new StandardMaterial("groundMat")
         let groundTexture = new Texture(require("/assets/textures/tilefloor.png"))
         groundTexture.uScale = 2
         groundTexture.vScale = 2
-        Tile.groundMat.diffuseTexture = groundTexture
+        groundMat.diffuseTexture = groundTexture
+        return groundMat
     }
 
     static #generateWallMat() {
-        Tile.wallMat = new StandardMaterial("wallMat")
-        Tile.wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
+        let wallMat = new StandardMaterial("wallMat")
+        wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
+        return wallMat
     }
 
     destroyWall(direction: Direction) {
