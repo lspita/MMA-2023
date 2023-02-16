@@ -33,6 +33,8 @@ export default class Tile extends BaseElement {
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
         }
+
+        this.mesh.position.y = -(this.#size - 2) / 2
     }
 
     static #generateGroundMat() {

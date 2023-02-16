@@ -1,11 +1,11 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, ArcRotateCameraInputsManager } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
 import Tile from "./core/tiles/tile"
-import WiseTree from "./elements/wisetree"
+import Tree from "./elements/tree"
 
 class App {
     constructor() {
@@ -59,13 +59,12 @@ class App {
         })
 
 
-        const tree = new WiseTree("wisetree")
-        // tree.mesh.position.y = 5
+        const tree = new Tree("wisetree")
         tree.render()
 
-        // const tile1 = new Tile("tile1")
-        // tile1.destroyWall("north")
-        // tile1.render()
+        const tile1 = new Tile("tile1")
+        tile1.destroyWall("north")
+        tile1.render()
         // const tile2 = new Tile("tile2")
         // tile2.destroyWall("north")
         // tile2.destroyWall("south")
