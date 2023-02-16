@@ -4,7 +4,6 @@ import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight } fro
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
-import TileGenerator from "./core/tiles/tilegenerator"
 import Tile from "./core/tiles/tile"
 
 class App {
@@ -56,7 +55,36 @@ class App {
         ball.mesh.position.y = 5
         ball.render()
 
-        new Tile("testtile").render()
+        const tile1 = new Tile("tile1")
+        tile1.destroyWall("north")
+        tile1.render()
+        const tile2 = new Tile("tile2")
+        tile2.destroyWall("north")
+        tile2.destroyWall("south")
+        tile2.mesh.position.z = 8
+        tile2.render()
+        const tile3 = new Tile("tile3")
+        tile3.destroyWall("south")
+        tile3.destroyWall("east")
+        tile3.mesh.position.z = 16
+        tile3.render()
+        const tile4 = new Tile("tile4")
+        tile4.destroyWall("west")
+        tile4.destroyWall("north")
+        tile4.mesh.position.z = 16
+        tile4.mesh.position.x = 8
+        tile4.render()
+        const tile5 = new Tile("tile5")
+        tile5.destroyWall("north")
+        tile5.destroyWall("south")
+        tile5.mesh.position.z = 24
+        tile5.mesh.position.x = 8
+        tile5.render()
+        const tile6 = new Tile("tile6")
+        tile6.destroyWall("south")
+        tile6.mesh.position.z = 32
+        tile6.mesh.position.x = 8
+        tile6.render()
 
         createGrid(State.scene, 200)
         State.scene.createDefaultEnvironment({
