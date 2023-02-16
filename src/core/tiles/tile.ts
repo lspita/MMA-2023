@@ -1,4 +1,4 @@
-import { MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
+import { Color3, MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 
 type Direction = typeof Tile.directions[number]
@@ -50,7 +50,7 @@ export default class Tile extends BaseElement {
 
     static #generateWallMat() {
         Tile.wallMat = new StandardMaterial("wallMat")
-        Tile.wallMat.diffuseColor.set(139 / 255, 69 / 255, 19 / 255)
+        Tile.wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
     }
 
     destroyWall(direction: Direction) {

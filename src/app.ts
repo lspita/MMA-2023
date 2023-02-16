@@ -5,6 +5,7 @@ import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
 import TileGenerator from "./core/tiles/tilegenerator"
+import Tile from "./core/tiles/tile"
 
 class App {
     constructor() {
@@ -27,8 +28,10 @@ class App {
             State.scene, true
         )
         State.camera.attachControl(canvas, true)
-        State.light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
-        State.light.parent = State.camera
+        let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
+        let light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
+        light.parent = State.camera
+        light2.parent = State.camera
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
@@ -48,12 +51,12 @@ class App {
             State.deltaTime = performance.now() * 0.001
         })
 
-        const tileGenerator = new TileGenerator(5)
-        tileGenerator.startGeneration()
 
         const ball = new Ball("golfball")
         ball.mesh.position.y = 5
         ball.render()
+
+        new Tile("testtile").render()
 
         createGrid(State.scene, 200)
         State.scene.createDefaultEnvironment({
