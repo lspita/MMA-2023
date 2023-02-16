@@ -1,12 +1,11 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, ArcRotateCameraInputsManager, KeyboardEventTypes } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
 import Tile from "./core/tiles/tile"
 import Tree from "./elements/tree"
-import { Scalar } from "babylonjs"
 
 class App {
     constructor() {
@@ -33,19 +32,19 @@ class App {
         State.camera.upperRadiusLimit = State.camera.radius
         State.camera.lowerRadiusLimit = State.camera.radius / 2
 
-        let lastKey: string;
+        let lastKey: string
         State.scene.onKeyboardObservable.add((kbInfo) => {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN:
                     State.keys[kbInfo.event.key] = true
-                    break;
+                    break
                 case KeyboardEventTypes.KEYUP:
                     State.keys[kbInfo.event.key] = false
-                    break;
+                    break
             }
 
             lastKey = kbInfo.event.key
-        });
+        })
 
         // State.camera.attachControl(canvas, true)
         let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
@@ -63,7 +62,7 @@ class App {
                 }
             }
         })
-        
+
         window.addEventListener("resize", _ => {
             State.engine.resize(true)
         })
@@ -78,15 +77,15 @@ class App {
         let cameraSpeedX: number = 0.0
         State.scene.registerBeforeRender(() => {
             if (State.keys["ArrowDown"])
-                cameraSpeedY = Math.min(0.01, cameraSpeedY + 0.001);
+                cameraSpeedY = Math.min(0.01, cameraSpeedY + 0.001)
             else if (State.keys["ArrowUp"])
-                cameraSpeedY = Math.max(-0.01, cameraSpeedY - 0.001);
+                cameraSpeedY = Math.max(-0.01, cameraSpeedY - 0.001)
             else cameraSpeedY = 0
 
             if (State.keys["ArrowRight"])
-                cameraSpeedX = Math.min(0.01, cameraSpeedX + 0.001);
+                cameraSpeedX = Math.min(0.01, cameraSpeedX + 0.001)
             else if (State.keys["ArrowLeft"])
-                cameraSpeedX = Math.max(-0.01, cameraSpeedX - 0.001);
+                cameraSpeedX = Math.max(-0.01, cameraSpeedX - 0.001)
             else cameraSpeedX = 0
 
             State.camera.beta += cameraSpeedY
@@ -97,7 +96,7 @@ class App {
 
         const tree = new Tree("wisetree")
         tree.render()
-        
+
         const tile1 = new Tile("tile1")
         tile1.destroyWall("north")
         tile1.render()
@@ -135,7 +134,7 @@ class App {
         ball.mesh.position.y = 1
         ball.render()
 
-        
+
         createGrid(State.scene, 200)
         State.scene.createDefaultEnvironment({
             skyboxColor: Color3.Teal(),
