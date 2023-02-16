@@ -1,20 +1,24 @@
-import { Material, Mesh, MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
+import { MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 
 type Direction = typeof Tile.directions[number]
+type TileType = "Straight" | "StraightX" | "SouthEast" | "NorthEast"
 
 export default class Tile extends BaseElement {
     static readonly directions = ["east", "north", "west", "south"] as const
+    static groundMat: StandardMaterial = null
+    static wallMat: StandardMaterial = null
+
     readonly walls: { [x in Direction]: boolean } = {
         east: false,
         north: false,
         west: false,
         south: false,
     }
-    #size: number
+    x: number
+    y: number
 
-    static groundMat: StandardMaterial = null
-    static wallMat: StandardMaterial = null
+    #size: number
 
     constructor(name: string, size = 10) {
         super(name)
