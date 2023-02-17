@@ -94,8 +94,11 @@ class App {
             State.camera.alpha += cameraSpeedX * 2
         })
 
-        const tree = new Tree("wisetree")
-        tree.render()
+        const tree = new Tree("wisetree", (element) => {
+            // callback (non obbligatorio) chiamato dopo che il modello viene importato
+            // modificare qui posizione, rotazione, ecc...
+            element.render()
+        })
 
         const tile1 = new Tile("tile1")
         tile1.destroyWall("north")
