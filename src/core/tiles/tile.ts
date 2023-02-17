@@ -19,15 +19,14 @@ export default class Tile extends BaseElement {
     #size: number
 
     constructor(name: string, size = 10) {
-        super(name)
+        super()
         this.#size = size
+        this.mesh = MeshBuilder.CreateBox(name, { size: this.#size - 2 })
         this.createMaterial(Tile.material, () => {
             Tile.material = Tile.#generateGroundMat()
             Tile.wallMat = Tile.#generateWallMat()
         })
 
-        this.mesh.dispose()
-        this.mesh = MeshBuilder.CreateBox(name, { size: this.#size - 2 })
         this.mesh.material = Tile.material
 
         for (let i = 0; i < 4; i++) {
