@@ -16,15 +16,15 @@ export default class Tile extends BaseElement {
     x: number
     y: number
 
-    #size: number
+    private size: number
 
     constructor(name: string, size = 10) {
         super()
-        this.#size = size
-        this.mesh = MeshBuilder.CreateBox(name, { size: this.#size - 2 })
+        this.size = size
+        this.mesh = MeshBuilder.CreateBox(name, { size: this.size - 2 })
         this.createMaterial(Tile.material, () => {
-            Tile.material = Tile.#generateGroundMat()
-            Tile.wallMat = Tile.#generateWallMat()
+            Tile.material = Tile.generateGroundMat()
+            Tile.wallMat = Tile.generateWallMat()
         })
 
         this.mesh.material = Tile.material
@@ -33,10 +33,10 @@ export default class Tile extends BaseElement {
             this.createWall(Tile.directions[i])
         }
 
-        this.mesh.position.y = -(this.#size - 2) / 2
+        this.mesh.position.y = -(this.size - 2) / 2
     }
 
-    static #generateGroundMat() {
+    private static generateGroundMat() {
         let groundMat = new StandardMaterial("groundMat")
         let groundTexture = new Texture(require("/public/assets/textures/tilefloor.png"))
         groundTexture.uScale = 2
@@ -45,7 +45,7 @@ export default class Tile extends BaseElement {
         return groundMat
     }
 
-    static #generateWallMat() {
+    private static generateWallMat() {
         let wallMat = new StandardMaterial("wallMat")
         wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
         return wallMat
@@ -65,35 +65,35 @@ export default class Tile extends BaseElement {
         let i = Tile.directions.indexOf(direction)
         let wall = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}Wall`,
-            { width: 1, height: this.#size, depth: this.#size - 2 }
+            { width: 1, height: this.size, depth: this.size - 2 }
         )
         let angle = i * Math.PI / 2
         wall.rotation.y = angle
-        wall.position.x = Math.cos(angle) * (this.#size - 1) / 2
-        wall.position.z = Math.sin(angle) * (this.#size - 1) / 2
+        wall.position.x = Math.cos(angle) * (this.size - 1) / 2
+        wall.position.z = Math.sin(angle) * (this.size - 1) / 2
         wall.material = Tile.wallMat
         this.mesh.addChild(wall)
 
         let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
         let wallAngle = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}${nextDir}WallAngle`,
-            { width: 1, height: this.#size, depth: 1 }
+            { width: 1, height: this.size, depth: 1 }
         )
         let edgeAngle = angle + (Math.PI / 4)
-        wallAngle.position.x = Math.round(Math.cos(edgeAngle)) * (this.#size - 1) / 2
-        wallAngle.position.z = Math.round(Math.sin(edgeAngle)) * (this.#size - 1) / 2
+        wallAngle.position.x = Math.round(Math.cos(edgeAngle)) * (this.size - 1) / 2
+        wallAngle.position.z = Math.round(Math.sin(edgeAngle)) * (this.size - 1) / 2
         wallAngle.material = Tile.wallMat
         this.mesh.addChild(wallAngle)
 
         let prevDir = Tile.directions[(i - 1 === -1 ? Tile.directions.length - 1 : i - 1)]
         let prevWallAngle = MeshBuilder.CreateBox(
             `${this.mesh.name}${prevDir}${direction}WallAngle`,
-            { width: 1, height: this.#size, depth: 1 }
+            { width: 1, height: this.size, depth: 1 }
         )
 
         let prevAngle = edgeAngle - (Math.PI / 2)
-        prevWallAngle.position.x = Math.round(Math.cos(prevAngle)) * (this.#size - 1) / 2
-        prevWallAngle.position.z = Math.round(Math.sin(prevAngle)) * (this.#size - 1) / 2
+        prevWallAngle.position.x = Math.round(Math.cos(prevAngle)) * (this.size - 1) / 2
+        prevWallAngle.position.z = Math.round(Math.sin(prevAngle)) * (this.size - 1) / 2
         prevWallAngle.material = Tile.wallMat
         this.mesh.addChild(prevWallAngle)
 

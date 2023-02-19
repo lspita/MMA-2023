@@ -4,7 +4,7 @@ import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, Keyb
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
-import Tile from "./core/tiles/tile"
+import Tile from "./core/tileSystem/tile"
 import Tree from "./elements/tree"
 
 class App {
