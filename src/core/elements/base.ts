@@ -6,10 +6,6 @@ export default abstract class BaseElement {
     static material: StandardMaterial = null
     scene = State.scene
 
-    render() {
-        this.scene.addMesh(this.mesh, true)
-    }
-
     createMaterial(mat: Material, callback?: () => void) {
         if (mat == null) {
             callback()
