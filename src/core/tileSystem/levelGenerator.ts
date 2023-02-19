@@ -40,7 +40,6 @@ export default class LevelGenerator {
                     lastTile.straight = true
                 }
             }
-            // alert(`x: ${step.x}, y: ${step.y}, dir: ${tile.direction}, opposite: ${oppositeDirection[lastTile?.direction]}`)
             lastTile = tile
             lastStepDirection = stepDirection
         })

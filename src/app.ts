@@ -8,14 +8,14 @@ import LevelGenerator from "./core/tileSystem/levelGenerator"
 
 class App {
     constructor() {
-        // create the canvas html element and attach it to the webpage
+        // Create the canvas html element and attach it to the webpage
         const canvas = document.createElement("canvas")
         canvas.style.width = "100%"
         canvas.style.height = "100%"
         canvas.id = "gameCanvas"
         document.body.appendChild(canvas)
 
-        // initialize babylon scene, engine and camera
+        // Initialize babylon scene, engine and camera
         State.engine = new Engine(canvas, true)
         State.scene = new Scene(State.engine)
 
@@ -50,7 +50,7 @@ class App {
         light.parent = State.camera
         light2.parent = State.camera
 
-        // hide/show the Inspector
+        // Hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
             if (ev.key === 'i') {
                 if (State.scene.debugLayer.isVisible()) {

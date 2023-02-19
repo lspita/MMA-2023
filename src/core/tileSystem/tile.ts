@@ -31,7 +31,6 @@ export default class Tile extends BaseElement {
     static readonly directions = ["east", "north", "west", "south"] as const
     static wallMat: StandardMaterial = null
     private size: number
-    private lastWallDestroyed: Direction = null
     straight: boolean = false
 
     constructor(name: string, size = 10) {
@@ -72,53 +71,6 @@ export default class Tile extends BaseElement {
                 mesh.dispose()
             }
         })
-        if (this.lastWallDestroyed != null) {
-            if (direction != dirInfo[this.lastWallDestroyed].opposite) {
-                console.log("from", this.lastWallDestroyed, "to", direction)
-
-                this.createCurve(this.lastWallDestroyed, direction)
-            }
-        }
-
-        this.lastWallDestroyed = direction
-
-    }
-
-    private createCurve(from: Direction, to: Direction) {
-        // const fromOpposite = dirInfo[from].opposite
-        // const toOpposite = dirInfo[to].opposite
-        // const angleWall = MeshBuilder.CreatePolyhedron(`${fromOpposite}${toOpposite}DiagonalAngle`, {
-        //     sizeX: 1,
-        //     sizeY: 1,
-        //     sizeZ: this.size,
-        //     custom: {
-        //         "vertex": [
-        //             [-1, -1, -1], [-1, -1, 1], [1, -1, -1], [1, -1, 1],
-        //             [1, 1, -1], [1, 1, 1],
-        //         ],
-        //         "face": [
-        //             [1, 0, 2, 3], [3, 2, 4, 5], [5, 4, 0, 1],
-        //             [0, 4, 2], [1, 3, 5]
-        //         ]
-        //     }
-        // })
-        // angleWall.material = Tile.wallMat
-        // const angle = this.mesh.getChildMeshes(false, node =>
-        //     node.name == `${this.mesh.name}${fromOpposite}${toOpposite}WallAngle` ||
-        //     node.name == `${this.mesh.name}${toOpposite}${fromOpposite}WallAngle`
-        // )[0]
-
-        // angle.addChild(angleWall)
-        // angleWall.position = Vector3.Zero()
-        // const coordinates = [dirInfo[fromOpposite].coordinates, dirInfo[toOpposite].coordinates].reduce((previous, current) => {
-        //     return {
-        //         x: current.x + previous.x,
-        //         y: current.y + previous.y,
-        //     }
-        // })
-        // angleWall.rotation.x = -Math.PI / 2
-        // angleWall.rotation.y = Math.atan2(coordinates.y, coordinates.x) - Math.PI / 4
-        // console.log("angle", coordinates, angleWall.rotation.y)
     }
 
     private createWall(direction: Direction) {
