@@ -8,6 +8,7 @@ export default class Ball extends BaseElement {
         this.createMaterial(Ball.material, () => {
             Ball.material = new StandardMaterial("ballMat")
             Ball.material.diffuseColor = Color3.White()
+            return Ball.material
         })
     }
 }

@@ -4,8 +4,7 @@ import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, Keyb
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
-import Tile from "./core/tileSystem/tile"
-import Tree from "./elements/tree"
+import LevelGenerator from "./core/tileSystem/levelGenerator"
 
 class App {
     constructor() {
@@ -28,7 +27,7 @@ class App {
             Vector3.Zero(),
             State.scene, true
         )
-
+        State.camera.attachControl()
         State.camera.upperRadiusLimit = State.camera.radius
         State.camera.lowerRadiusLimit = State.camera.radius / 2
 
@@ -46,7 +45,6 @@ class App {
             lastKey = kbInfo.event.key
         })
 
-        // State.camera.attachControl(canvas, true)
         let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
         let light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
         light.parent = State.camera
@@ -97,45 +95,10 @@ class App {
             State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
         })
 
-        const tree = new Tree("wisetree", (element) => {
-            // callback (non obbligatorio) chiamato dopo che il modello viene importato
-            // modificare qui posizione, rotazione, ecc...
-        })
+        let levelGenerator = new LevelGenerator(10, 30)
+        levelGenerator.createLevel()
 
-        const tile1 = new Tile("tile1")
-        tile1.destroyWall("north")
-
-        const tile2 = new Tile("tile2")
-        tile2.destroyWall("north")
-        tile2.destroyWall("south")
-        tile2.mesh.position.z = 8
-
-        const tile3 = new Tile("tile3")
-        tile3.destroyWall("south")
-        tile3.destroyWall("east")
-        tile3.mesh.position.z = 16
-
-        const tile4 = new Tile("tile4")
-        tile4.destroyWall("west")
-        tile4.destroyWall("north")
-        tile4.mesh.position.z = 16
-        tile4.mesh.position.x = 8
-
-        const tile5 = new Tile("tile5")
-        tile5.destroyWall("north")
-        tile5.destroyWall("south")
-        tile5.mesh.position.z = 24
-        tile5.mesh.position.x = 8
-
-        const tile6 = new Tile("tile6")
-        tile6.destroyWall("south")
-        tile6.mesh.position.z = 32
-        tile6.mesh.position.x = 8
-
-        tree.mesh.position.z = 32
-        tree.mesh.position.x = 8
-
-        let ball = new Ball("palla-italica")
+        let ball = new Ball("golfball")
         ball.mesh.position.y = 1
 
         createGrid(State.scene, 200)
