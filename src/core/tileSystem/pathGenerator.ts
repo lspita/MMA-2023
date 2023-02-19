@@ -1,3 +1,5 @@
+import Utils from "../utils"
+
 enum CellState {
     Open,
     Blocked,
@@ -19,9 +21,11 @@ export default class PathGenerator {
     private size: number
     private matrix: Cell[][]
     private radius: number
+    wiggliness: number
 
-    constructor(matrixRadius: number) {
+    constructor(matrixRadius: number, wiggliness: number) {
         this.radius = matrixRadius
+        this.wiggliness = wiggliness
         this.size = (this.radius * 2 + 1)
     }
 
@@ -34,6 +38,20 @@ export default class PathGenerator {
         return neighbours
             .filter(neighbour => this.matrix[neighbour.row][neighbour.col].state != CellState.Blocked)
             .map(neighbour => new Cell(neighbour.row, neighbour.col, this.matrix[neighbour.row][neighbour.col].state))
+    }
+
+    private getRandomCell(openCells: Cell[], currentPath: Cell[]): Cell {
+        const openPathCells = currentPath.filter(c => c.state == CellState.Open)
+        const pathWeight = openPathCells.length * this.wiggliness
+        const nonPathWeight = (openCells.length - openPathCells.length) * 1
+        const totalWeight = pathWeight + nonPathWeight
+        var r = Math.random() * totalWeight
+        if (r <= pathWeight) {
+            return Utils.random(openPathCells)
+        } else {
+            const nonPathCells = openCells.filter(c => !currentPath.includes(c))
+            return Utils.random(nonPathCells)
+        }
     }
 
     private setCellValue<T>(matrix: T[][], cell: Cell, value: T) {
@@ -77,7 +95,7 @@ export default class PathGenerator {
         while (currentDistance > 0) {
             const neighbours = this.getNeighbours(cell)
             const neighboursTowardsStart = neighbours.filter(neighbour => this.getCellValue(distances, neighbour) === currentDistance - 1)
-            cell = neighboursTowardsStart[Math.floor(Math.random() * neighboursTowardsStart.length)]
+            cell = Utils.random(neighboursTowardsStart)
             path.push(cell)
             currentDistance -= 1
         }
@@ -106,19 +124,19 @@ export default class PathGenerator {
         const startCell = this.matrix[this.radius][this.radius]
         let endCell: Cell
         const randomSide = Math.floor(Math.random() * 4)
-        const randomCell = Math.floor(Math.random() * this.size)
+        const randomCellIndex = Math.floor(Math.random() * this.size)
         switch (randomSide) {
             case 0: // east
-                endCell = this.matrix[this.size - 1][randomCell]
+                endCell = this.matrix[this.size - 1][randomCellIndex]
                 break
             case 1: // north
-                endCell = this.matrix[randomCell][0]
+                endCell = this.matrix[randomCellIndex][0]
                 break
             case 2: // west
-                endCell = this.matrix[0][randomCell]
+                endCell = this.matrix[0][randomCellIndex]
                 break
             case 3: // south
-                endCell = this.matrix[randomCell][this.size - 1]
+                endCell = this.matrix[randomCellIndex][this.size - 1]
                 break
         }
 
@@ -144,7 +162,7 @@ export default class PathGenerator {
                 })
                 return result
             }
-            const randomOpenCell = openCells[Math.floor(Math.random() * openCells.length)]
+            const randomOpenCell = this.getRandomCell(openCells, finalPath)
             randomOpenCell.state = CellState.Blocked
             if (finalPath.includes(randomOpenCell)) {
                 const newPath = this.findPath(startCell, endCell)

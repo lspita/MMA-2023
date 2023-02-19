@@ -1,12 +1,38 @@
-import { MeshBuilder, StandardMaterial, Texture } from "@babylonjs/core"
+import { MeshBuilder, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 
-type Direction = typeof Tile.directions[number]
+export type Direction = typeof Tile.directions[number]
+export type DirInfo = {
+    opposite: Direction
+    coordinates: { x: number, y: number }
+}
+export const dirInfo: {
+    [x in Direction]: DirInfo
+} = {
+    east: {
+        opposite: "west",
+        coordinates: { x: 1, y: 0 }
+    },
+    north: {
+        opposite: "south",
+        coordinates: { x: 0, y: 1 }
+    },
+    west: {
+        opposite: "east",
+        coordinates: { x: -1, y: 0 }
+    },
+    south: {
+        opposite: "north",
+        coordinates: { x: 0, y: -1 }
+    }
+}
 
 export default class Tile extends BaseElement {
     static readonly directions = ["east", "north", "west", "south"] as const
     static wallMat: StandardMaterial = null
     private size: number
+    private lastWallDestroyed: Direction = null
+    straight: boolean = false
 
     constructor(name: string, size = 10) {
         super()
@@ -15,9 +41,8 @@ export default class Tile extends BaseElement {
         this.createMaterial(Tile.material, () => {
             Tile.material = Tile.generateGroundMat()
             Tile.wallMat = Tile.generateWallMat()
+            return Tile.material
         })
-
-        this.mesh.material = Tile.material
 
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
@@ -47,9 +72,56 @@ export default class Tile extends BaseElement {
                 mesh.dispose()
             }
         })
+        if (this.lastWallDestroyed != null) {
+            if (direction != dirInfo[this.lastWallDestroyed].opposite) {
+                console.log("from", this.lastWallDestroyed, "to", direction)
+
+                this.createCurve(this.lastWallDestroyed, direction)
+            }
+        }
+
+        this.lastWallDestroyed = direction
+
     }
 
-    createWall(direction: Direction) {
+    private createCurve(from: Direction, to: Direction) {
+        // const fromOpposite = dirInfo[from].opposite
+        // const toOpposite = dirInfo[to].opposite
+        // const angleWall = MeshBuilder.CreatePolyhedron(`${fromOpposite}${toOpposite}DiagonalAngle`, {
+        //     sizeX: 1,
+        //     sizeY: 1,
+        //     sizeZ: this.size,
+        //     custom: {
+        //         "vertex": [
+        //             [-1, -1, -1], [-1, -1, 1], [1, -1, -1], [1, -1, 1],
+        //             [1, 1, -1], [1, 1, 1],
+        //         ],
+        //         "face": [
+        //             [1, 0, 2, 3], [3, 2, 4, 5], [5, 4, 0, 1],
+        //             [0, 4, 2], [1, 3, 5]
+        //         ]
+        //     }
+        // })
+        // angleWall.material = Tile.wallMat
+        // const angle = this.mesh.getChildMeshes(false, node =>
+        //     node.name == `${this.mesh.name}${fromOpposite}${toOpposite}WallAngle` ||
+        //     node.name == `${this.mesh.name}${toOpposite}${fromOpposite}WallAngle`
+        // )[0]
+
+        // angle.addChild(angleWall)
+        // angleWall.position = Vector3.Zero()
+        // const coordinates = [dirInfo[fromOpposite].coordinates, dirInfo[toOpposite].coordinates].reduce((previous, current) => {
+        //     return {
+        //         x: current.x + previous.x,
+        //         y: current.y + previous.y,
+        //     }
+        // })
+        // angleWall.rotation.x = -Math.PI / 2
+        // angleWall.rotation.y = Math.atan2(coordinates.y, coordinates.x) - Math.PI / 4
+        // console.log("angle", coordinates, angleWall.rotation.y)
+    }
+
+    private createWall(direction: Direction) {
         let i = Tile.directions.indexOf(direction)
         let wall = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}Wall`,
@@ -63,28 +135,47 @@ export default class Tile extends BaseElement {
         this.mesh.addChild(wall)
 
         let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
+        this.createWallAngle(direction, nextDir, angle + (Math.PI / 4))
+
+        let prevDir = Tile.directions[(i - 1 === -1 ? Tile.directions.length - 1 : i - 1)]
+        this.createWallAngle(prevDir, direction, angle - (Math.PI / 4))
+    }
+
+    private createWallAngle(dir1: Direction, dir2: Direction, edgeAngle: number) {
         let wallAngle = MeshBuilder.CreateBox(
-            `${this.mesh.name}${direction}${nextDir}WallAngle`,
+            `${this.mesh.name}${dir1}${dir2}WallAngle`,
             { width: 1, height: this.size, depth: 1 }
         )
-        let edgeAngle = angle + (Math.PI / 4)
-        wallAngle.position.x = Math.round(Math.cos(edgeAngle)) * (this.size - 1) / 2
-        wallAngle.position.z = Math.round(Math.sin(edgeAngle)) * (this.size - 1) / 2
+        let coordinates = {
+            x: Math.cos(edgeAngle),
+            y: Math.sin(edgeAngle)
+        }
+        wallAngle.position.x = Math.round(coordinates.x) * (this.size - 1) / 2
+        wallAngle.position.z = Math.round(coordinates.y) * (this.size - 1) / 2
         wallAngle.material = Tile.wallMat
         this.mesh.addChild(wallAngle)
 
-        let prevDir = Tile.directions[(i - 1 === -1 ? Tile.directions.length - 1 : i - 1)]
-        let prevWallAngle = MeshBuilder.CreateBox(
-            `${this.mesh.name}${prevDir}${direction}WallAngle`,
-            { width: 1, height: this.size, depth: 1 }
-        )
-
-        let prevAngle = edgeAngle - (Math.PI / 2)
-        prevWallAngle.position.x = Math.round(Math.cos(prevAngle)) * (this.size - 1) / 2
-        prevWallAngle.position.z = Math.round(Math.sin(prevAngle)) * (this.size - 1) / 2
-        prevWallAngle.material = Tile.wallMat
-        this.mesh.addChild(prevWallAngle)
+        let diagonalSize = 2
+        let wallDiagonal = MeshBuilder.CreatePolyhedron(`${dir1}${dir2}DiagonalAngle`, {
+            sizeX: 2,
+            sizeY: this.size / 2,
+            sizeZ: 2,
+            custom: {
+                "vertex": [
+                    [0, 1, -1], [0, 1, 1], [1, 1, 0],
+                    [0, -1, -1], [0, -1, 1], [1, -1, 0]
+                ],
+                "face": [
+                    [0, 1, 2], [3, 4, 5],
+                    [0, 2, 5, 3],
+                    [2, 1, 4, 5],
+                    [1, 0, 3, 4]
+                ]
+            }
+        })
+        wallDiagonal.material = Tile.wallMat
+        wallDiagonal.rotation.y = -edgeAngle
+        wallAngle.addChild(wallDiagonal)
+        wallDiagonal.position = new Vector3(-coordinates.x * diagonalSize, 0, -coordinates.y * diagonalSize)
     }
 }
-
-export { Direction }

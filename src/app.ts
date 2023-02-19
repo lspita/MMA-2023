@@ -27,7 +27,7 @@ class App {
             Vector3.Zero(),
             State.scene, true
         )
-
+        State.camera.attachControl()
         State.camera.upperRadiusLimit = State.camera.radius
         State.camera.lowerRadiusLimit = State.camera.radius / 2
 
@@ -95,7 +95,7 @@ class App {
             State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
         })
 
-        let levelGenerator = new LevelGenerator(10)
+        let levelGenerator = new LevelGenerator(10, 30)
         levelGenerator.createLevel()
 
         let ball = new Ball("golfball")

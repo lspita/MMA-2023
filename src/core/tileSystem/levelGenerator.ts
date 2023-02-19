@@ -1,30 +1,23 @@
 import { Vector3 } from "@babylonjs/core"
 import PathGenerator from "./pathGenerator"
-import Tile, { Direction } from "./tile"
-
-const oppositeDirection: { [x in Direction]: Direction } = {
-    east: "west",
-    north: "south",
-    west: "east",
-    south: "north"
-}
+import Tile, { Direction, dirInfo } from "./tile"
 
 export default class LevelGenerator {
-    size: number
     tileSize: number
+
     private pathGenerator: PathGenerator
 
-    constructor(radius: number, tileSize: number = 10) {
-        this.size = radius
+    constructor(radius: number, wiggliness: number = 10, tileSize: number = 10) {
         this.tileSize = tileSize
-        this.pathGenerator = new PathGenerator(radius)
+        this.pathGenerator = new PathGenerator(radius, wiggliness)
     }
 
     createLevel() {
         const path = this.pathGenerator.generatePath()
         let lastTile: Tile = null
         const stepDistance = this.tileSize - 2
-        let lastDirection: Direction
+        let stepDirection: Direction
+        let lastStepDirection: Direction
         path.forEach((step, i) => {
             const tile = new Tile(`step${i}`, this.tileSize)
             if (lastTile != null) {
@@ -34,29 +27,22 @@ export default class LevelGenerator {
                     0,
                     step.y * stepDistance
                 )
-                switch (step.x) {
-                    case 1:
-                        lastDirection = "east"
+                const stepString = JSON.stringify(step)
+                for (const [key, value] of Object.entries(dirInfo)) {
+                    if (JSON.stringify(value.coordinates) == stepString) {
+                        stepDirection = key as Direction
                         break
-                    case -1:
-                        lastDirection = "west"
-                        break
-                    default:
-                        switch (step.y) {
-                            case 1:
-                                lastDirection = "north"
-                                break
-                            case -1:
-                                lastDirection = "south"
-                                break
-                        }
+                    }
                 }
-
-                tile.destroyWall(oppositeDirection[lastDirection])
-                lastTile.destroyWall(lastDirection)
+                tile.destroyWall(dirInfo[stepDirection].opposite)
+                lastTile.destroyWall(stepDirection)
+                if (stepDirection == lastStepDirection) {
+                    lastTile.straight = true
+                }
             }
             // alert(`x: ${step.x}, y: ${step.y}, dir: ${tile.direction}, opposite: ${oppositeDirection[lastTile?.direction]}`)
             lastTile = tile
+            lastStepDirection = stepDirection
         })
     }
 }
