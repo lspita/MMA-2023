@@ -27,7 +27,7 @@ class App {
             Vector3.Zero(),
             State.scene, true
         )
-        State.camera.attachControl()
+
         State.camera.upperRadiusLimit = State.camera.radius
         State.camera.lowerRadiusLimit = State.camera.radius / 2
 
