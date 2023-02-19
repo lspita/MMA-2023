@@ -6,16 +6,6 @@ type Direction = typeof Tile.directions[number]
 export default class Tile extends BaseElement {
     static readonly directions = ["east", "north", "west", "south"] as const
     static wallMat: StandardMaterial = null
-
-    readonly walls: { [x in Direction]: boolean } = {
-        east: false,
-        north: false,
-        west: false,
-        south: false,
-    }
-    x: number
-    y: number
-
     private size: number
 
     constructor(name: string, size = 10) {
@@ -32,7 +22,6 @@ export default class Tile extends BaseElement {
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
         }
-
         this.mesh.position.y = -(this.size - 2) / 2
     }
 
@@ -58,7 +47,6 @@ export default class Tile extends BaseElement {
                 mesh.dispose()
             }
         })
-        this.walls[direction] = false
     }
 
     createWall(direction: Direction) {
@@ -96,12 +84,6 @@ export default class Tile extends BaseElement {
         prevWallAngle.position.z = Math.round(Math.sin(prevAngle)) * (this.size - 1) / 2
         prevWallAngle.material = Tile.wallMat
         this.mesh.addChild(prevWallAngle)
-
-        this.walls[direction] = true
-    }
-
-    getDirections() {
-        return Object.keys(this.walls).filter((value: Direction) => this.walls[value] === false) as Direction[]
     }
 }
 

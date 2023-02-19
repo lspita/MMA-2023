@@ -4,8 +4,6 @@ import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, Keyb
 import State from "./core/state"
 import Ball from "./elements/ball"
 import createGrid from "./core/debug"
-import Tile from "./core/tileSystem/tile"
-import Tree from "./elements/tree"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
 
 class App {
@@ -47,7 +45,6 @@ class App {
             lastKey = kbInfo.event.key
         })
 
-        // State.camera.attachControl(canvas, true)
         let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
         let light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
         light.parent = State.camera
