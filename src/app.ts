@@ -3,18 +3,18 @@ import "@babylonjs/inspector"
 import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, PhysicsImpostor } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
-import { CannonJSPlugin } from "@babylonjs/core";
+import { CannonJSPlugin } from "@babylonjs/core"
 import createGrid from "./core/debug"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
 import CANNON from "cannon"
 import Tile from "./core/tileSystem/tile"
 
 class App {
-    
-    constructor() {        
 
-        let gravityVector = new Vector3(0,-9.81, 0);
-        let physicsPlugin = new CannonJSPlugin(true, 10, CANNON);
+    constructor() {
+
+        const gravityVector = new Vector3(0, -9.81, 0)
+        const physicsPlugin = new CannonJSPlugin(true, 10, CANNON)
 
         // Create the canvas html element and attach it to the webpage
         const canvas = document.createElement("canvas")
@@ -53,8 +53,8 @@ class App {
             lastKey = kbInfo.event.key
         })
 
-        let light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
-        let light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
+        const light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
+        const light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
         light.parent = State.camera
         light2.parent = State.camera
 
@@ -103,20 +103,20 @@ class App {
             State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
         })
 
-        let levelGenerator = new LevelGenerator(10, 30)
+        const levelGenerator = new LevelGenerator(10, 30)
         levelGenerator.createLevel()
 
 
-        let ball = new Ball("golfball")
+        const ball = new Ball("golfball")
         ball.mesh.position.y = 1
 
         //FISICA
-        State.scene.enablePhysics(gravityVector, physicsPlugin);
+        State.scene.enablePhysics(gravityVector, physicsPlugin)
 
-        ball.mesh.physicsImpostor = new PhysicsImpostor(ball.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.65 }, State.scene);
-        
-        
-        
+        ball.mesh.physicsImpostor = new PhysicsImpostor(ball.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.65 }, State.scene)
+
+
+
 
         createGrid(State.scene, 200)
         State.scene.createDefaultEnvironment({
