@@ -46,7 +46,7 @@ export default class PathGenerator {
         const nonPathWeight = (openCells.length - openPathCells.length) * 1
         const totalWeight = pathWeight + nonPathWeight
         var r = Math.random() * totalWeight
-        if (r <= pathWeight) {
+        if (r <= pathWeight) { 
             return Utils.random(openPathCells)
         } else {
             const nonPathCells = openCells.filter(c => !currentPath.includes(c))

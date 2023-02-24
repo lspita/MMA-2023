@@ -1,13 +1,21 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, PhysicsImpostor } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
+import { CannonJSPlugin } from "@babylonjs/core";
 import createGrid from "./core/debug"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
+import CANNON from "cannon"
+import Tile from "./core/tileSystem/tile"
 
 class App {
-    constructor() {
+    
+    constructor() {        
+
+        let gravityVector = new Vector3(0,-9.81, 0);
+        let physicsPlugin = new CannonJSPlugin(true, 10, CANNON);
+
         // Create the canvas html element and attach it to the webpage
         const canvas = document.createElement("canvas")
         canvas.style.width = "100%"
@@ -98,8 +106,17 @@ class App {
         let levelGenerator = new LevelGenerator(10, 30)
         levelGenerator.createLevel()
 
+
         let ball = new Ball("golfball")
         ball.mesh.position.y = 1
+
+        //FISICA
+        State.scene.enablePhysics(gravityVector, physicsPlugin);
+
+        ball.mesh.physicsImpostor = new PhysicsImpostor(ball.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.65 }, State.scene);
+        
+        
+        
 
         createGrid(State.scene, 200)
         State.scene.createDefaultEnvironment({
