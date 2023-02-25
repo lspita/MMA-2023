@@ -5,6 +5,7 @@ import State from "../state"
 import CANNON from "cannon"
 import Utils from "../utils"
 import * as Obstacles from "../../elements/obstacles"
+import Tree from "../../elements/tree"
 
 export default class LevelGenerator {
     tileSize: number
@@ -69,6 +70,12 @@ export default class LevelGenerator {
             lastTile = tile
             lastStepDirection = stepDirection
         })
+        new Tree("endtree", (element) => {
+            lastTile.mesh.addChild(element.mesh)
+            element.mesh.position = Vector3.Up().scale(lastTile.groundSize / 2)
+            console.log(lastStepDirection)
+            let coordinates = dirInfo[lastStepDirection].coordinates
+            element.mesh.rotation.y = Math.atan2(coordinates.y, -coordinates.x)
+        })
     }
 }
-//+ lastTile.groundSize / 2
