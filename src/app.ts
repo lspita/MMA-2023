@@ -72,9 +72,9 @@ function startGame() {
     // Get delta time and time
     let lastTime = 0
     State.scene.registerBeforeRender(() => {
-        const time = performance.now() * 0.001
-        State.deltaTime = time - lastTime
-        lastTime = time
+        State.time = performance.now() * 0.001
+        State.deltaTime = State.time - lastTime
+        lastTime = State.time
     })
 
     // Camera movement
@@ -99,7 +99,7 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(15, 100, 25)
+    const levelGenerator = new LevelGenerator(15, 0, 25)
     levelGenerator.createLevel()
 
 
