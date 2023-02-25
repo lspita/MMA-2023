@@ -72,9 +72,9 @@ function startGame() {
     // Get delta time and time
     let lastTime = 0
     State.scene.registerBeforeRender(() => {
-        State.time = performance.now() * 0.001
-        State.deltaTime = State.time - lastTime
-        lastTime = State.time
+        const time = performance.now() * 0.001
+        State.deltaTime = time - lastTime
+        lastTime = time
     })
 
     // Camera movement

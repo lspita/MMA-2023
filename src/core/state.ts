@@ -4,7 +4,6 @@ export default class State {
     static scene: Scene
     static engine: Engine
     static camera: ArcRotateCamera
-    static time: number
     static deltaTime: number
     static keys: { [x: string]: boolean } = {}
 }

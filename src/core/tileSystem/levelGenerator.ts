@@ -3,6 +3,8 @@ import PathGenerator from "./pathGenerator"
 import Tile, { Direction, dirInfo } from "./tile"
 import State from "../state"
 import CANNON from "cannon"
+import Utils from "../utils"
+import Obstacles from "../../elements/obstacles"
 
 export default class LevelGenerator {
     tileSize: number
@@ -16,18 +18,19 @@ export default class LevelGenerator {
 
     createLevel() {
 
-        let gravityVector = new Vector3(0,-9.81, 0);
-        let physicsPlugin = new CannonJSPlugin(true, 10, CANNON);
-        
+        let gravityVector = new Vector3(0, -9.81, 0)
+        let physicsPlugin = new CannonJSPlugin(true, 10, CANNON)
+
         const path = this.pathGenerator.generatePath()
         let lastTile: Tile = null
         const stepDistance = this.tileSize - 2
-        let stepDirection: Direction
-        let lastStepDirection: Direction
+        let stepDirection: Direction = null
+        let lastStepDirection: Direction = null
+        let lastObstacle = -1
         path.forEach((step, i) => {
             const tile = new Tile(`step${i}`, this.tileSize)
-            State.scene.enablePhysics(gravityVector, physicsPlugin);
-            tile.mesh.physicsImpostor = new PhysicsImpostor(tile.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene);
+            State.scene.enablePhysics(gravityVector, physicsPlugin)
+            tile.mesh.physicsImpostor = new PhysicsImpostor(tile.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene)
             if (lastTile != null) {
                 lastTile.mesh.addChild(tile.mesh)
                 tile.mesh.position = new Vector3(
@@ -44,8 +47,20 @@ export default class LevelGenerator {
                 }
                 tile.destroyWall(dirInfo[stepDirection].opposite)
                 lastTile.destroyWall(stepDirection)
+
                 if (stepDirection == lastStepDirection) {
-                    lastTile.straight = true
+                    // straight tile
+                    if ((i - lastObstacle) > 1 && Math.round(Math.random() * 2) == 1) {
+                        const obstacleFunction = Utils.random(Obstacles)
+                        const obstacle = obstacleFunction(`${lastTile.mesh.name}Obstacle`, lastTile.groundSize)
+                        lastTile.mesh.addChild(obstacle)
+                        obstacle.position = new Vector3(0, obstacle.position.y + lastTile.groundSize / 2, 0)
+                        const mirrored = obstacleFunction(`${obstacle.name}Mirror`, lastTile.groundSize)
+                        lastTile.mesh.addChild(mirrored)
+                        mirrored.rotation.x = Math.PI
+                        mirrored.position = new Vector3(0, -obstacle.position.y, 0)
+                        lastObstacle = i
+                    }
                 }
             }
             lastTile = tile
