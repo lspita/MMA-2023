@@ -54,7 +54,8 @@ export default class LevelGenerator {
                         const obstacleFunction = Utils.random(Obstacles)
                         const obstacle = obstacleFunction(`${lastTile.mesh.name}Obstacle`, lastTile.groundSize)
                         lastTile.mesh.addChild(obstacle)
-                        obstacle.position = new Vector3(0, obstacle.position.y + lastTile.groundSize / 2, 0)
+                        let box = obstacle.getBoundingInfo()
+                        obstacle.position = new Vector3(0, obstacle.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, 0)
                         const mirrored = obstacleFunction(`${obstacle.name}Mirror`, lastTile.groundSize)
                         lastTile.mesh.addChild(mirrored)
                         mirrored.rotation.x = Math.PI
@@ -62,9 +63,12 @@ export default class LevelGenerator {
                         lastObstacle = i
                     }
                 }
+
             }
+
             lastTile = tile
             lastStepDirection = stepDirection
         })
     }
 }
+//+ lastTile.groundSize / 2
