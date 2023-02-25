@@ -2,7 +2,7 @@ import { MeshBuilder, StandardMaterial, Vector3, Mesh } from "@babylonjs/core"
 import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
 
-function RotateObstacle(name: string, size: number) {
+export function RotateObstacle(name: string, size: number) {
     let pivot = MeshBuilder.CreateCylinder(name, { height: size * 0.1, diameter: size * 0.03 })
     pivot.position.y = 0
 
@@ -22,7 +22,7 @@ function RotateObstacle(name: string, size: number) {
     return pivot
 }
 
-function TestObstacle(name: string, size: number) {
+export function TestObstacle(name: string, size: number) {
     const box = MeshBuilder.CreateBox(name, { size: size })
     const box2 = MeshBuilder.CreateBox(name, { height: 1, width: size + 1, depth: size + 1 })
     box.addChild(box2)
@@ -33,12 +33,3 @@ function TestObstacle(name: string, size: number) {
     })
     return box
 }
-
-type Obstacle = (name: string, tileSize: number) => Mesh
-
-const Obstacles: Obstacle[] = [
-    RotateObstacle,
-    TestObstacle
-]
-
-export default Obstacles

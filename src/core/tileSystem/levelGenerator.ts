@@ -4,12 +4,12 @@ import Tile, { Direction, dirInfo } from "./tile"
 import State from "../state"
 import CANNON from "cannon"
 import Utils from "../utils"
-import Obstacles from "../../elements/obstacles"
+import * as Obstacles from "../../elements/obstacles"
 
 export default class LevelGenerator {
     tileSize: number
-
     private pathGenerator: PathGenerator
+    static obstacles = Object.values(Obstacles)
 
     constructor(radius: number, wiggliness: number = 10, tileSize: number = 10) {
         this.tileSize = tileSize
@@ -51,7 +51,7 @@ export default class LevelGenerator {
                 if (stepDirection == lastStepDirection) {
                     // straight tile
                     if ((i - lastObstacle) > 1 && Math.round(Math.random() * 2) == 1) {
-                        const obstacleFunction = Utils.random(Obstacles)
+                        const obstacleFunction = Utils.random(LevelGenerator.obstacles)
                         const obstacle = obstacleFunction(`${lastTile.mesh.name}Obstacle`, lastTile.groundSize)
                         lastTile.mesh.addChild(obstacle)
                         let box = obstacle.getBoundingInfo()
