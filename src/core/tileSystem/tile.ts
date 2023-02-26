@@ -31,12 +31,17 @@ export default class Tile extends BaseElement {
     static readonly directions = ["east", "north", "west", "south"] as const
     static wallMat: StandardMaterial = null
     private size: number
-    straight: boolean = false
+    hasObstacle: boolean = false
+
+    public get groundSize(): number {
+        return this.size - 2
+    }
+
 
     constructor(name: string, size = 10) {
         super()
         this.size = size
-        this.mesh = MeshBuilder.CreateBox(name, { size: this.size - 2 })
+        this.mesh = MeshBuilder.CreateBox(name, { size: this.groundSize })
         this.createMaterial(Tile.material, () => {
             Tile.material = Tile.generateGroundMat()
             Tile.wallMat = Tile.generateWallMat()
@@ -46,7 +51,7 @@ export default class Tile extends BaseElement {
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
         }
-        this.mesh.position.y = -(this.size - 2) / 2
+        this.mesh.position.y = -(this.groundSize) / 2
     }
 
     private static generateGroundMat() {
@@ -77,7 +82,7 @@ export default class Tile extends BaseElement {
         let i = Tile.directions.indexOf(direction)
         let wall = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}Wall`,
-            { width: 1, height: this.size, depth: this.size - 2 }
+            { width: 1, height: this.size, depth: this.groundSize }
         )
         let angle = i * Math.PI / 2
         wall.rotation.y = angle
