@@ -1,8 +1,7 @@
-import { Vector3, PhysicsImpostor, CannonJSPlugin } from "@babylonjs/core"
+import { Vector3, PhysicsImpostor } from "@babylonjs/core"
 import PathGenerator from "./pathGenerator"
 import Tile, { Direction, dirInfo } from "./tile"
 import State from "../state"
-import CANNON from "cannon"
 import Utils from "../utils"
 import * as Obstacles from "../../elements/obstacles"
 import Tree from "../../elements/tree"
@@ -20,8 +19,6 @@ export default class LevelGenerator {
     }
 
     createLevel() {
-        let gravityVector = new Vector3(0, -9.81, 0)
-        let physicsPlugin = new CannonJSPlugin(true, 10, CANNON)
 
         const path = this.pathGenerator.generatePath()
         let lastTile: Tile = null
@@ -33,8 +30,7 @@ export default class LevelGenerator {
             const step = path[i]
 
             const tile = new Tile(`step${i}`, this.tileSize)
-            State.scene.enablePhysics(gravityVector, physicsPlugin)
-            tile.mesh.physicsImpostor = new PhysicsImpostor(tile.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene)
+            //tile.mesh.physicsImpostor = new PhysicsImpostor(tile.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene)
             if (lastTile != null) {
                 tile.mesh.position = new Vector3(
                     lastTile.mesh.position.x + (step.x * stepDistance),

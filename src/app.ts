@@ -1,6 +1,6 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, PhysicsImpostor } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, PhysicsImpostor, KeyboardInfo } from "@babylonjs/core"
 import State from "./core/state"
 import Ball from "./elements/ball"
 import { CannonJSPlugin } from "@babylonjs/core"
@@ -11,18 +11,19 @@ import CANNON from "cannon"
 function startGame() {
     const gravityVector = new Vector3(0, -9.81, 0)
     const physicsPlugin = new CannonJSPlugin(true, 10, CANNON)
-
+    
     // Create the canvas html element and attach it to the webpage
     const canvas = document.createElement("canvas")
     canvas.style.width = "100%"
     canvas.style.height = "100%"
     canvas.id = "gameCanvas"
     document.body.appendChild(canvas)
-
+    
     // Initialize babylon scene, engine and camera
     State.engine = new Engine(canvas, true)
     State.scene = new Scene(State.engine)
-
+    
+    State.scene.enablePhysics(gravityVector, physicsPlugin)
     State.camera = new ArcRotateCamera(
         'cam',
         -Math.PI / 4, // Alpha
@@ -64,6 +65,8 @@ function startGame() {
             }
         }
     })
+
+
 
     window.addEventListener("resize", _ => {
         State.engine.resize(true)
@@ -107,9 +110,12 @@ function startGame() {
     ball.mesh.position.y = 1
 
     //FISICA
-    State.scene.enablePhysics(gravityVector, physicsPlugin)
-
     ball.mesh.physicsImpostor = new PhysicsImpostor(ball.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.65 }, State.scene)
+
+    State.scene.onKeyboardObservable.add(() =>{
+        if(State.keys["q"])
+            ball.mesh.position.x += 0.5
+    })
 
     /*
     ⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠛⠿⣿⣿⣿⣿
