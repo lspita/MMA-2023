@@ -99,7 +99,7 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(15, 0, 25)
+    const levelGenerator = new LevelGenerator(15, 100, 25)
     levelGenerator.createLevel()
 
 
