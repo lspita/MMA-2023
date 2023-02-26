@@ -1,4 +1,4 @@
-import { MeshBuilder, Vector3, Mesh } from "@babylonjs/core"
+import { MeshBuilder, Mesh, Vector3 } from "@babylonjs/core"
 import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
 
@@ -7,7 +7,7 @@ export type Obstacle = {
     builder: (name: string, size: number) => Mesh
 }
 
-export const Rotor: Obstacle = {
+export const Wheel: Obstacle = {
     curve: true,
     builder: (name: string, size: number) => {
         let pivot = MeshBuilder.CreateCylinder(name, { height: size * 0.1, diameter: size * 0.03 })
@@ -30,19 +30,35 @@ export const Rotor: Obstacle = {
     }
 }
 
-export const Bostacle: Obstacle = {
-    curve: false,
+export const Barriers: Obstacle = {
+    curve: true,
     builder: (name: string, size: number) => {
-        const box = MeshBuilder.CreateBox(name, { size: size / 8 })
-        State.scene.registerBeforeRender(() => {
-            const side = (size - (size / 8)) / 2
-            box.position.z = side * Math.sin(State.time)
+        const boxSize = size / 5
+        const pivot = new Mesh(name)
+        pivot.position.y = 0.5
 
-            if (Math.abs(box.position.z) >= side - 1) {
-                box.rotation.y += Math.PI / 2
-            }
+        const box1 = MeshBuilder.CreateBox(name + "Box1", { height: 1, width: boxSize, depth: boxSize })
+        const box2 = MeshBuilder.CreateBox(name + "Box2", { height: 1, width: boxSize, depth: boxSize })
+        pivot.addChild(box1)
+        pivot.addChild(box2)
+        box1.position.y = box2.position.y = 0
+        box1.material = box2.material = Tile.wallMat
+        const side = ((size - boxSize) / 2) - 1
+
+        State.scene.registerBeforeRender(() => {
+            box1.position.x = side * (
+                Math.abs(Math.cos(State.time)) * Math.cos(State.time) +
+                Math.abs(Math.sin(State.time)) * Math.sin(State.time)
+            )
+            box1.position.z = side * (
+                Math.abs(Math.cos(State.time)) * Math.cos(State.time) -
+                Math.abs(Math.sin(State.time)) * Math.sin(State.time)
+            )
+
+            box2.position.x = -box1.position.x
+            box2.position.z = -box1.position.z
         })
 
-        return box
+        return pivot
     }
 }
