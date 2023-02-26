@@ -20,7 +20,6 @@ export default class LevelGenerator {
     }
 
     createLevel() {
-
         let gravityVector = new Vector3(0, -9.81, 0)
         let physicsPlugin = new CannonJSPlugin(true, 10, CANNON)
 
@@ -37,11 +36,10 @@ export default class LevelGenerator {
             State.scene.enablePhysics(gravityVector, physicsPlugin)
             tile.mesh.physicsImpostor = new PhysicsImpostor(tile.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene)
             if (lastTile != null) {
-                lastTile.mesh.addChild(tile.mesh)
                 tile.mesh.position = new Vector3(
-                    step.x * stepDistance,
-                    0,
-                    step.y * stepDistance
+                    lastTile.mesh.position.x + (step.x * stepDistance),
+                    lastTile.mesh.position.y,
+                    lastTile.mesh.position.z + (step.y * stepDistance)
                 )
                 const stepString = JSON.stringify(step)
                 for (const [key, value] of Object.entries(dirInfo)) {
