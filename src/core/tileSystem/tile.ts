@@ -1,4 +1,4 @@
-import { MeshBuilder, PhysicsImpostor, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
+import { MeshBuilder, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 import State from "../state"
 
@@ -53,9 +53,6 @@ export default class Tile extends BaseElement {
             this.createWall(Tile.directions[i])
         }
         this.mesh.position.y = -(this.groundSize) / 2
-
-        this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene)
-
     }
 
     private static generateGroundMat() {
@@ -94,9 +91,6 @@ export default class Tile extends BaseElement {
         wall.position.z = Math.sin(angle) * (this.size - 1) / 2
         wall.material = Tile.wallMat
 
-        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.MeshImpostor, {mass: 0, restitution: 0.65}, State.scene)
-
-
         this.mesh.addChild(wall)
 
         let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
@@ -120,13 +114,11 @@ export default class Tile extends BaseElement {
         wallAngle.material = Tile.wallMat
         this.mesh.addChild(wallAngle)
 
-        wallAngle.physicsImpostor = new PhysicsImpostor(wallAngle, PhysicsImpostor.MeshImpostor, {mass: 0, restitution: 0.65}, State.scene)
-
-        let diagonalSize = 2
+        let diagonalSize = 2.5
         let wallDiagonal = MeshBuilder.CreatePolyhedron(`${dir1}${dir2}DiagonalAngle`, {
-            sizeX: 2,
+            sizeX: diagonalSize,
             sizeY: this.size / 2,
-            sizeZ: 2,
+            sizeZ: diagonalSize,
             custom: {
                 "vertex": [
                     [0, 1, -1], [0, 1, 1], [1, 1, 0],

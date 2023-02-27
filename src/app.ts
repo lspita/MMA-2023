@@ -6,24 +6,24 @@ import Ball from "./elements/ball"
 import { CannonJSPlugin } from "@babylonjs/core"
 import createGrid from "./core/debug"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
-import CANNON from "cannon"
+import * as CANNON from "cannon"
 
 function startGame() {
-    const gravityVector = new Vector3(0, -9.81, 0)
-    const physicsPlugin = new CannonJSPlugin(true, 10, CANNON)
-    
+
     // Create the canvas html element and attach it to the webpage
     const canvas = document.createElement("canvas")
     canvas.style.width = "100%"
     canvas.style.height = "100%"
     canvas.id = "gameCanvas"
     document.body.appendChild(canvas)
-    
+
     // Initialize babylon scene, engine and camera
     State.engine = new Engine(canvas, true)
     State.scene = new Scene(State.engine)
-    
-    State.scene.enablePhysics(gravityVector, physicsPlugin)
+
+    const gravityVector = new Vector3(0, -9.81, 0)
+
+    State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
     State.camera = new ArcRotateCamera(
         'cam',
         -Math.PI / 4, // Alpha
@@ -107,14 +107,26 @@ function startGame() {
 
 
     const ball = new Ball("golfball")
-    ball.mesh.position.y = 1
+    ball.mesh.position.y = 3
 
-    //FISICA
-    ball.mesh.physicsImpostor = new PhysicsImpostor(ball.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.65 }, State.scene)
-
-    State.scene.onKeyboardObservable.add(() =>{
-        if(State.keys["q"])
-            ball.mesh.position.x += 0.5
+    let throwForce = 10
+    State.scene.onKeyboardObservable.add(() => {
+        const position = ball.mesh.getAbsolutePosition()
+        if (State.keys["w"]) {
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, 0, throwForce), position)
+        }
+        if (State.keys["s"]) {
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, 0, -throwForce), position)
+        }
+        if (State.keys["a"]) {
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(-throwForce, 0, 0), position)
+        }
+        if (State.keys["d"]) {
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
+        }
+        if (State.keys[" "]) {
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, throwForce, 0), position)
+        }
     })
 
     /*
