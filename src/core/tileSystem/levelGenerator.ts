@@ -56,7 +56,7 @@ export default class LevelGenerator {
         rawTiles.forEach((rawTile, i) => {
             rawPos = rawTile.mesh.position
             rawTile.mesh = Utils.mergeWithCollisions(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
-            if (i >= 1 && i < this.radius - 1 && (i - lastObstacle) > 0 && Math.round(Math.random() * 0) == 0) {
+            if (i >= 1 && i < this.radius - 1 && (i - lastObstacle) > 1 && Math.round(Math.random()) == 0) {
                 let obstacle: Obstacles.Obstacle
                 if (stepDirection == lastStepDirection) {
                     // straight tile
