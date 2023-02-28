@@ -55,7 +55,7 @@ export default class LevelGenerator {
         }
 
         rawTiles.forEach((rawTile, i) => {
-            rawTile.mesh = Utils.mergeWithCollisions(rawTile.mesh)
+            rawTile.mesh = Utils.mergeWithCollisions(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
 
             if (i > 1 && i < this.radius && (i - lastObstacle) > 1 && Math.round(Math.random() * 2) == 1) {
                 let obstacle: Obstacles.Obstacle
