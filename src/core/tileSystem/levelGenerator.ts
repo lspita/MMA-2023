@@ -5,6 +5,7 @@ import State from "../state"
 import Utils from "../utils"
 import * as Obstacles from "../../elements/obstacles"
 import Tree from "../../elements/tree"
+import Flag from "../../elements/flag"
 
 export default class LevelGenerator {
     tileSize: number
@@ -71,11 +72,10 @@ export default class LevelGenerator {
                 lastObstacle = i
             }
         })
-        // new Tree("endtree", (element) => {
-        //     element.mesh = Utils.mergeWithCollisions(element.mesh)
-        //     element.mesh.position = new Vector3(rawPos.x, lastTile.groundSize / 2, rawPos.y)
-        //     let coordinates = dirInfo[lastStepDirection].coordinates
-        //     element.mesh.rotation.y = Math.atan2(coordinates.y, -coordinates.x)
-        // })
+        const flag = new Flag("endFlag", rawTiles[rawTiles.length - 1])
+        console.log(flag.groundPortion)
+
+        let box = flag.mesh.getBoundingInfo()
+        flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
     }
 }

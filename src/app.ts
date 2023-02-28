@@ -21,7 +21,7 @@ function startGame() {
     State.engine = new Engine(canvas, true)
     State.scene = new Scene(State.engine)
 
-    const gravityVector = new Vector3(0, -9.81, 0)
+    const gravityVector = new Vector3(0, -9.81 * 4, 0)
 
     State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
     State.camera = new ArcRotateCamera(
@@ -100,7 +100,7 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(15, 100, 50)
+    const levelGenerator = new LevelGenerator(3, 100, 50)
     levelGenerator.createLevel()
 
 
@@ -111,7 +111,7 @@ function startGame() {
 
     })
 
-    let throwForce = 10
+    let throwForce = 500
     State.scene.onKeyboardObservable.add(() => {
         const position = ball.mesh.getAbsolutePosition()
         if (State.keys["w"]) {
@@ -127,7 +127,7 @@ function startGame() {
             ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
         }
         if (State.keys[" "]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, throwForce, 0), position)
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
         }
     })
 
