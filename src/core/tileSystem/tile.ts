@@ -1,4 +1,4 @@
-import { MeshBuilder, PhysicsImpostor, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
+import { MeshBuilder, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 import State from "../state"
 
@@ -33,16 +33,17 @@ export default class Tile extends BaseElement {
     static wallMat: StandardMaterial = null
     private size: number
     hasObstacle: boolean = false
-
-    public get groundSize(): number {
-        return this.size - 2
-    }
+    public groundSize: number
+    public wallSize: number
 
 
     constructor(name: string, size = 10) {
         super()
         this.size = size
-        this.mesh = MeshBuilder.CreateBox(name, { size: this.groundSize })
+        this.groundSize = this.size - 3
+        this.wallSize = this.size - this.groundSize
+
+        this.mesh = MeshBuilder.CreateBox(name, { width: this.groundSize, depth: this.groundSize, height: this.groundSize - this.wallSize })
         this.createMaterial(Tile.material, () => {
             Tile.material = Tile.generateGroundMat()
             Tile.wallMat = Tile.generateWallMat()
@@ -52,10 +53,7 @@ export default class Tile extends BaseElement {
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
         }
-        this.mesh.position.y = -(this.groundSize) / 2
-
-        this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, State.scene)
-
+        this.mesh.position.y = -(this.groundSize - this.wallSize) / 2
     }
 
     private static generateGroundMat() {
@@ -86,16 +84,13 @@ export default class Tile extends BaseElement {
         let i = Tile.directions.indexOf(direction)
         let wall = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}Wall`,
-            { width: 1, height: this.size, depth: this.groundSize }
+            { width: this.wallSize, height: this.size, depth: this.groundSize }
         )
         let angle = i * Math.PI / 2
         wall.rotation.y = angle
-        wall.position.x = Math.cos(angle) * (this.size - 1) / 2
-        wall.position.z = Math.sin(angle) * (this.size - 1) / 2
+        wall.position.x = Math.cos(angle) * this.size / 2
+        wall.position.z = Math.sin(angle) * this.size / 2
         wall.material = Tile.wallMat
-
-        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.MeshImpostor, {mass: 0, restitution: 0.65}, State.scene)
-
 
         this.mesh.addChild(wall)
 
@@ -109,24 +104,22 @@ export default class Tile extends BaseElement {
     private createWallAngle(dir1: Direction, dir2: Direction, edgeAngle: number) {
         let wallAngle = MeshBuilder.CreateBox(
             `${this.mesh.name}${dir1}${dir2}WallAngle`,
-            { width: 1, height: this.size, depth: 1 }
+            { width: this.wallSize, height: this.size, depth: this.wallSize }
         )
         let coordinates = {
             x: Math.cos(edgeAngle),
             y: Math.sin(edgeAngle)
         }
-        wallAngle.position.x = Math.round(coordinates.x) * (this.size - 1) / 2
-        wallAngle.position.z = Math.round(coordinates.y) * (this.size - 1) / 2
+        wallAngle.position.x = Math.round(coordinates.x) * this.size / 2
+        wallAngle.position.z = Math.round(coordinates.y) * this.size / 2
         wallAngle.material = Tile.wallMat
         this.mesh.addChild(wallAngle)
 
-        wallAngle.physicsImpostor = new PhysicsImpostor(wallAngle, PhysicsImpostor.MeshImpostor, {mass: 0, restitution: 0.65}, State.scene)
-
-        let diagonalSize = 2
+        let diagonalSize = this.wallSize * 2.5
         let wallDiagonal = MeshBuilder.CreatePolyhedron(`${dir1}${dir2}DiagonalAngle`, {
-            sizeX: 2,
+            sizeX: diagonalSize,
             sizeY: this.size / 2,
-            sizeZ: 2,
+            sizeZ: diagonalSize,
             custom: {
                 "vertex": [
                     [0, 1, -1], [0, 1, 1], [1, 1, 0],
