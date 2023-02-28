@@ -22,7 +22,6 @@ export default class LevelGenerator {
 
         const path = this.pathGenerator.generatePath()
         let lastTile: Tile = null
-        const stepDistance = this.tileSize - 2
         let stepDirection: Direction = null
         let lastStepDirection: Direction = null
         let lastObstacle = -1
@@ -34,9 +33,9 @@ export default class LevelGenerator {
             const tile = new Tile(`step${i}`, this.tileSize)
             if (lastTile != null) {
                 tile.mesh.position = new Vector3(
-                    lastTile.mesh.position.x + (step.x * stepDistance),
+                    lastTile.mesh.position.x + (step.x * tile.groundSize),
                     lastTile.mesh.position.y,
-                    lastTile.mesh.position.z + (step.y * stepDistance)
+                    lastTile.mesh.position.z + (step.y * tile.groundSize)
                 )
                 const stepString = JSON.stringify(step)
                 for (const [key, value] of Object.entries(dirInfo)) {
@@ -53,11 +52,11 @@ export default class LevelGenerator {
             lastStepDirection = stepDirection
             rawTiles.push(lastTile)
         }
-
+        let rawPos: Vector3
         rawTiles.forEach((rawTile, i) => {
+            rawPos = rawTile.mesh.position
             rawTile.mesh = Utils.mergeWithCollisions(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
-
-            if (i > 1 && i < this.radius && (i - lastObstacle) > 1 && Math.round(Math.random() * 2) == 1) {
+            if (i >= 1 && i < this.radius - 1 && (i - lastObstacle) > 0 && Math.round(Math.random() * 0) == 0) {
                 let obstacle: Obstacles.Obstacle
                 if (stepDirection == lastStepDirection) {
                     // straight tile
@@ -65,19 +64,18 @@ export default class LevelGenerator {
                 } else {
                     obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.curve == true))
                 }
-                let obstacleMesh = obstacle.builder(`${rawTile.mesh.name}Obstacle`, rawTile.groundSize)
-                rawTile.mesh.addChild(obstacleMesh)
+                let obstacleMesh = obstacle.builder(`${rawTile.mesh.name}Obstacle`, rawTile)
                 let box = obstacleMesh.getBoundingInfo()
-                obstacleMesh.position = new Vector3(0, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, 0)
+
+                obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
                 lastObstacle = i
             }
         })
-        new Tree("endtree", (element) => {
-            element.mesh = Utils.mergeWithCollisions(element.mesh)
-            lastTile.mesh.addChild(element.mesh)
-            element.mesh.position = Vector3.Up().scale(lastTile.groundSize / 2)
-            let coordinates = dirInfo[lastStepDirection].coordinates
-            element.mesh.rotation.y = Math.atan2(coordinates.y, -coordinates.x)
-        })
+        // new Tree("endtree", (element) => {
+        //     element.mesh = Utils.mergeWithCollisions(element.mesh)
+        //     element.mesh.position = new Vector3(rawPos.x, lastTile.groundSize / 2, rawPos.y)
+        //     let coordinates = dirInfo[lastStepDirection].coordinates
+        //     element.mesh.rotation.y = Math.atan2(coordinates.y, -coordinates.x)
+        // })
     }
 }

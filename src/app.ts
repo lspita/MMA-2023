@@ -28,7 +28,7 @@ function startGame() {
         'cam',
         -Math.PI / 4, // Alpha
         0.75, // Beta
-        50,
+        100,
         Vector3.Zero(),
         State.scene, true
     )
@@ -66,8 +66,6 @@ function startGame() {
         }
     })
 
-
-
     window.addEventListener("resize", _ => {
         State.engine.resize(true)
     })
@@ -102,12 +100,16 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(15, 100, 25)
+    const levelGenerator = new LevelGenerator(15, 100, 50)
     levelGenerator.createLevel()
 
 
     const ball = new Ball("golfball")
-    ball.mesh.position.y = 3
+    ball.mesh.position.y = 5
+
+    State.scene.registerBeforeRender(() => {
+
+    })
 
     let throwForce = 10
     State.scene.onKeyboardObservable.add(() => {
