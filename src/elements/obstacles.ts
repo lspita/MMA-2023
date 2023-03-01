@@ -1,7 +1,6 @@
 import { MeshBuilder, Mesh, Vector3, PhysicsImpostor } from "@babylonjs/core"
 import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
-import Utils from "../core/utils"
 
 export type Obstacle = {
     curve: boolean

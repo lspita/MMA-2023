@@ -1,6 +1,5 @@
 import { MeshBuilder, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
 import BaseElement from "../elements/base"
-import State from "../state"
 
 export type Direction = typeof Tile.directions[number]
 export type DirInfo = {

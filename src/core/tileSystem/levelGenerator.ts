@@ -1,10 +1,8 @@
-import { Vector3, PhysicsImpostor, CSG, MeshBuilder, Mesh } from "@babylonjs/core"
+import { Vector3, Mesh } from "@babylonjs/core"
 import PathGenerator from "./pathGenerator"
 import Tile, { Direction, dirInfo } from "./tile"
-import State from "../state"
 import Utils from "../utils"
 import * as Obstacles from "../../elements/obstacles"
-import Tree from "../../elements/tree"
 import Flag from "../../elements/flag"
 import Ball from "../../elements/ball"
 
