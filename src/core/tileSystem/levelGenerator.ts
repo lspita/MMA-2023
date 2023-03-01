@@ -12,7 +12,7 @@ export default class LevelGenerator {
     static obstacles = Object.values(Obstacles)
     private radius: number
 
-    constructor(radius: number, wiggliness: number = 10, tileSize: number = 10) {
+    constructor(radius: number, wiggliness: number, tileSize: number) {
         this.tileSize = tileSize
         this.radius = radius
         this.pathGenerator = new PathGenerator(radius, wiggliness)
