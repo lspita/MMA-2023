@@ -1,10 +1,10 @@
-import { Vector3, PhysicsImpostor, CSG, MeshBuilder, Mesh } from "@babylonjs/core"
+import { Vector3, Mesh } from "@babylonjs/core"
 import PathGenerator from "./pathGenerator"
 import Tile, { Direction, dirInfo } from "./tile"
-import State from "../state"
 import Utils from "../utils"
 import * as Obstacles from "../../elements/obstacles"
-import Tree from "../../elements/tree"
+import Flag from "../../elements/flag"
+import Ball from "../../elements/ball"
 
 export default class LevelGenerator {
     tileSize: number
@@ -53,29 +53,41 @@ export default class LevelGenerator {
             rawTiles.push(lastTile)
         }
         let rawPos: Vector3
+        let ball: Ball = null
+        let endPos: Vector3 = null
         rawTiles.forEach((rawTile, i) => {
             rawPos = rawTile.mesh.position
-            rawTile.mesh = Utils.mergeWithCollisions(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
-            if (i >= 1 && i < this.radius - 1 && (i - lastObstacle) > 1 && Math.round(Math.random()) == 0) {
-                let obstacle: Obstacles.Obstacle
-                if (stepDirection == lastStepDirection) {
-                    // straight tile
-                    obstacle = Utils.random(LevelGenerator.obstacles)
-                } else {
-                    obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.curve == true))
-                }
-                let obstacleMesh = obstacle.builder(`${rawTile.mesh.name}Obstacle`, rawTile)
-                let box = obstacleMesh.getBoundingInfo()
+            if (i == rawTiles.length - 1) {
+                const flag = new Flag("endFlag", rawTile)
+                ball = new Ball("golfball")
+                ball.mesh.position.y = 5
+                let box = flag.mesh.getBoundingInfo()
+                flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
+                endPos = flag.createHole(rawTile)
+                flag.mesh.position.y += 10
+                flag.follow(ball.mesh, 15)
+            }
+            else {
+                rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
+                if (i >= 1 && i < this.radius - 1 && (i - lastObstacle) > 0 && Math.round(Math.random()) == 0) {
+                    let obstacle: Obstacles.Obstacle
+                    if (stepDirection == lastStepDirection) {
+                        // straight tile
+                        obstacle = Utils.random(LevelGenerator.obstacles)
+                    } else {
+                        obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.curve == true))
+                    }
+                    let obstacleMesh = obstacle.builder(`${rawTile.mesh.name}Obstacle`, rawTile)
+                    let box = obstacleMesh.getBoundingInfo()
 
-                obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
-                lastObstacle = i
+                    obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
+                    lastObstacle = i
+                }
             }
         })
-        // new Tree("endtree", (element) => {
-        //     element.mesh = Utils.mergeWithCollisions(element.mesh)
-        //     element.mesh.position = new Vector3(rawPos.x, lastTile.groundSize / 2, rawPos.y)
-        //     let coordinates = dirInfo[lastStepDirection].coordinates
-        //     element.mesh.rotation.y = Math.atan2(coordinates.y, -coordinates.x)
-        // })
+        return {
+            ball,
+            endPos
+        }
     }
 }

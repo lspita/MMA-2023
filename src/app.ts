@@ -1,8 +1,7 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, PhysicsImpostor, KeyboardInfo } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar } from "@babylonjs/core"
 import State from "./core/state"
-import Ball from "./elements/ball"
 import { CannonJSPlugin } from "@babylonjs/core"
 import createGrid from "./core/debug"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
@@ -21,7 +20,7 @@ function startGame() {
     State.engine = new Engine(canvas, true)
     State.scene = new Scene(State.engine)
 
-    const gravityVector = new Vector3(0, -9.81, 0)
+    const gravityVector = new Vector3(0, -9.81 * 4, 0)
 
     State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
     State.camera = new ArcRotateCamera(
@@ -101,17 +100,10 @@ function startGame() {
     })
 
     const levelGenerator = new LevelGenerator(15, 100, 50)
-    levelGenerator.createLevel()
 
+    const { ball, endPos } = levelGenerator.createLevel()
+    let throwForce = 500
 
-    const ball = new Ball("golfball")
-    ball.mesh.position.y = 5
-
-    State.scene.registerBeforeRender(() => {
-
-    })
-
-    let throwForce = 10
     State.scene.onKeyboardObservable.add(() => {
         const position = ball.mesh.getAbsolutePosition()
         if (State.keys["w"]) {
@@ -127,9 +119,34 @@ function startGame() {
             ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
         }
         if (State.keys[" "]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, throwForce, 0), position)
+            ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
         }
     })
+
+    const startBallPos = ball.mesh.position
+    let ballCenter: Vector3 = startBallPos
+    function ballLogic() {
+        ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
+        State.camera.target = ballCenter
+
+        if (ballCenter.y <= -2) {
+            if (ballCenter.x < endPos.x + 2 &&
+                ballCenter.x > endPos.x - 2 &&
+                ballCenter.z < endPos.z + 2 &&
+                ballCenter.z > endPos.z - 2) {
+                console.log("vittoria")
+                ball.mesh.unregisterBeforeRender(ballLogic)
+                ball.mesh.dispose()
+            }
+            else {
+                console.log("sconfitta")
+                ball.mesh.position = startBallPos
+                ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
+                ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
+            }
+        }
+    }
+    ball.mesh.registerBeforeRender(ballLogic)
 
     /*
     ⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠛⠿⣿⣿⣿⣿
