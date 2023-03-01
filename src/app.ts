@@ -8,12 +8,8 @@ import * as CANNON from "cannon"
 
 function startGame() {
 
-    // Create the canvas html element and attach it to the webpage
-    const canvas = document.createElement("canvas")
-    canvas.style.width = "100%"
-    canvas.style.height = "100%"
-    canvas.id = "gameCanvas"
-    document.body.appendChild(canvas)
+    // Get the canvas html element and attach it to the webpage
+    const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 
     // Initialize babylon scene, engine and camera
     State.engine = new Engine(canvas, true)
