@@ -100,13 +100,13 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(3, 100, 50)
+    const levelGenerator = new LevelGenerator(15, 100, 50)
 
 
 
-    const ball = levelGenerator.createLevel()
-
+    const { ball, endPos } = levelGenerator.createLevel()
     let throwForce = 500
+
     State.scene.onKeyboardObservable.add(() => {
         const position = ball.mesh.getAbsolutePosition()
         if (State.keys["w"]) {
@@ -125,6 +125,31 @@ function startGame() {
             ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
         }
     })
+
+    const startBallPos = ball.mesh.position
+    let ballCenter: Vector3 = startBallPos
+    function ballLogic() {
+        ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
+        State.camera.target = ballCenter
+
+        if (ballCenter.y <= -2) {
+            if (ballCenter.x < endPos.x + 2 &&
+                ballCenter.x > endPos.x - 2 &&
+                ballCenter.z < endPos.z + 2 &&
+                ballCenter.z > endPos.z - 2) {
+                console.log("vittoria")
+                ball.mesh.unregisterBeforeRender(ballLogic)
+                ball.mesh.dispose()
+            }
+            else {
+                console.log("sconfitta")
+                ball.mesh.position = startBallPos
+                ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
+                ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
+            }
+        }
+    }
+    ball.mesh.registerBeforeRender(ballLogic)
 
     /*
     ⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠛⠿⣿⣿⣿⣿
