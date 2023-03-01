@@ -1,12 +1,10 @@
 const path = require("path")
-const fs = require("fs")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
 const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     entry: path.resolve(__dirname, "src/app.ts"), //path to the main .ts file
     output: {
-        filename: "js/bundleName.js", //name for the js file that is created/compiled in memory
+        filename: "js/main.js", //name for the js file that is created/compiled in memory
         clean: true,
     },
     resolve: {
@@ -35,13 +33,9 @@ module.exports = {
         ],
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            inject: true,
-            template: path.resolve(__dirname, "public/index.html"),
-        }),
         new CopyPlugin({
             patterns: [
-                { from: "public/assets", to: "assets" }
+                { from: "public/", to: "." }
             ]
         })
     ],
