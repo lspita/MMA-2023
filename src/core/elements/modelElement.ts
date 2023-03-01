@@ -5,7 +5,11 @@ import BaseElement from "./base"
 export default abstract class ModelElement extends BaseElement {
     constructor(name: string, root: string, model: string, importCallback?: (element: BaseElement) => void) {
         super()
-        SceneLoader.ImportMeshAsync("", root, model).then(() => {
+        this.mesh = new Mesh(name)
+        SceneLoader.ImportMeshAsync("", root, model).then((result) => {
+            result.meshes.forEach((mesh) => {
+                mesh.parent = this.mesh
+            })
             if (importCallback != null && importCallback != undefined) {
                 importCallback(this)
             }

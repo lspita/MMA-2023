@@ -6,18 +6,15 @@ import { CannonJSPlugin } from "@babylonjs/core"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 
-function startGame() {
+const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
+const messageHeading = document.getElementById("message") as HTMLHeadElement
+const menu = document.getElementById("menu") as HTMLDivElement
 
-    // Get the canvas html element and attach it to the webpage
-    const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
-
+function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     // Initialize babylon scene, engine and camera
     State.engine = new Engine(canvas, true)
     State.scene = new Scene(State.engine)
 
-    const gravityVector = new Vector3(0, -9.81 * 4, 0)
-
-    State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
     State.camera = new ArcRotateCamera(
         'cam',
         -Math.PI / 4, // Alpha
@@ -30,24 +27,19 @@ function startGame() {
     State.camera.upperRadiusLimit = State.camera.radius
     State.camera.lowerRadiusLimit = State.camera.radius / 2
 
-    let lastKey: string
-    State.scene.onKeyboardObservable.add((kbInfo) => {
-        switch (kbInfo.type) {
-            case KeyboardEventTypes.KEYDOWN:
-                State.keys[kbInfo.event.key] = true
-                break
-            case KeyboardEventTypes.KEYUP:
-                State.keys[kbInfo.event.key] = false
-                break
-        }
-
-        lastKey = kbInfo.event.key
+    const light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
+    light.parent = State.camera
+    window.addEventListener("resize", _ => {
+        State.engine.resize(true)
     })
 
-    const light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
-    const light2 = new DirectionalLight("light2", new Vector3(0, 0, -1), State.scene)
-    light.parent = State.camera
-    light2.parent = State.camera
+    // Get delta time and time
+    let lastTime = 0
+    State.scene.registerBeforeRender(() => {
+        State.time = performance.now() * 0.001
+        State.deltaTime = State.time - lastTime
+        lastTime = State.time
+    })
 
     // Hide/show the Inspector
     window.addEventListener("keydown", (ev) => {
@@ -60,16 +52,15 @@ function startGame() {
         }
     })
 
-    window.addEventListener("resize", _ => {
-        State.engine.resize(true)
-    })
-
-    // Get delta time and time
-    let lastTime = 0
-    State.scene.registerBeforeRender(() => {
-        State.time = performance.now() * 0.001
-        State.deltaTime = State.time - lastTime
-        lastTime = State.time
+    State.scene.onKeyboardObservable.add((kbInfo) => {
+        switch (kbInfo.type) {
+            case KeyboardEventTypes.KEYDOWN:
+                State.keys[kbInfo.event.key] = true
+                break
+            case KeyboardEventTypes.KEYUP:
+                State.keys[kbInfo.event.key] = false
+                break
+        }
     })
 
     // Camera movement
@@ -94,7 +85,10 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(15, 100, 75)
+    const gravityVector = new Vector3(0, -9.81 * 4, 0)
+    State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
+
+    const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
 
     const { ball, endPos } = levelGenerator.createLevel()
     let throwForce = 500
@@ -113,9 +107,6 @@ function startGame() {
         if (State.keys["d"]) {
             ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
         }
-        if (State.keys[" "]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
-        }
     })
 
     const startBallPos = ball.mesh.position
@@ -129,12 +120,12 @@ function startGame() {
                 ballCenter.x > endPos.x - 2 &&
                 ballCenter.z < endPos.z + 2 &&
                 ballCenter.z > endPos.z - 2) {
-                console.log("vittoria")
                 ball.mesh.unregisterBeforeRender(ballLogic)
                 ball.mesh.dispose()
+                messageHeading.style.visibility = "visible"
+                messageHeading.classList.add("pulse")
             }
             else {
-                console.log("sconfitta")
                 ball.mesh.position = startBallPos
                 ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
@@ -160,9 +151,8 @@ function startGame() {
     ⣿⡇⠀⠀⣰⣿⣿⣿⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
     ⣿⣧⣀⡀⠉⣻⣿⣧⣤⣤⣤⣤⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
     */
-
     State.scene.createDefaultEnvironment({
-        skyboxColor: Color3.Teal(),
+        skyboxColor: Color3.Teal()
     })
     canvas.focus()
     State.engine.runRenderLoop(() => {
@@ -170,5 +160,27 @@ function startGame() {
     })
 }
 
+document.querySelectorAll("#menu input").forEach((value) => {
+    const element = value as HTMLInputElement
+    document.querySelectorAll(`label[for=${element.name}]`).forEach(label => {
+        const lbl = label as HTMLLabelElement
+        const startText = lbl.innerText
+        element.addEventListener("input", () => {
+            lbl.innerText = startText + element.value
+        })
+        element.dispatchEvent(new Event("input"))
+    })
+})
+const tilesNumberInput = document.getElementById("tilesNumber") as HTMLInputElement
+const wigglinessInput = document.getElementById("wiggliness") as HTMLInputElement
+const tileSizeInput = document.getElementById("tileSize") as HTMLInputElement
 
-startGame()
+
+const startButton = (document.getElementById("start") as HTMLButtonElement)
+startButton.onclick = () => {
+    messageHeading.classList.remove("title")
+    messageHeading.classList.add("victory")
+    messageHeading.innerText = "VITTORIA"
+    menu.remove()
+    startGame(parseInt(tilesNumberInput.value), parseInt(wigglinessInput.value), parseInt(tileSizeInput.value))
+}

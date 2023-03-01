@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Con Nome</title>
-    <style>
-        html,
-        body {
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <div id="hud">
+        <div class="center">
+            <h1 id="message" class="title">CON NOME</h1>
+            <div id="menu">
+                <button id="start">START GAME</button>
+                <label for="tilesNumber">Numero di tiles: </label>
+                <input type="range" name="tilesNumber" id="tilesNumber" min="2" max="20" value="10">
+                <label for="wiggliness">Percentuale di randomicità: </label>
+                <input type="range" name="wiggliness" id="wiggliness" min="0" max="100" value="100">
+                <label for="tileSize">Grandezza singola tile: </label>
+                <input type="range" name="tileSize" id="tileSize" min="25" max="100" value="75">
+            </div>
+        </div>
+    </div>
     <script src="js/main.js"></script>
 </body>
 </html>
