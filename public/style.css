@@ -50,7 +50,7 @@ canvas {
 }
 
 .pulse {
-    animation: pulse .5s alternate infinite ease;
+    animation: pulse 0.75s alternate infinite ease-out;
 }
 
 @keyframes pulse {
