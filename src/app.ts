@@ -6,11 +6,10 @@ import { CannonJSPlugin } from "@babylonjs/core"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 
+const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
+const messageHeading = document.getElementById("message") as HTMLHeadElement
+
 function startGame() {
-
-    // Get the canvas html element and attach it to the webpage
-    const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
-
     // Initialize babylon scene, engine and camera
     State.engine = new Engine(canvas, true)
     State.scene = new Scene(State.engine)
@@ -129,12 +128,12 @@ function startGame() {
                 ballCenter.x > endPos.x - 2 &&
                 ballCenter.z < endPos.z + 2 &&
                 ballCenter.z > endPos.z - 2) {
-                console.log("vittoria")
                 ball.mesh.unregisterBeforeRender(ballLogic)
                 ball.mesh.dispose()
+                messageHeading.style.visibility = "visible"
+                messageHeading.classList.add("pulse")
             }
             else {
-                console.log("sconfitta")
                 ball.mesh.position = startBallPos
                 ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
