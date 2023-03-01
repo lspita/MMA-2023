@@ -94,7 +94,7 @@ function startGame() {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const levelGenerator = new LevelGenerator(15, 100, 50)
+    const levelGenerator = new LevelGenerator(15, 100, 75)
 
     const { ball, endPos } = levelGenerator.createLevel()
     let throwForce = 500

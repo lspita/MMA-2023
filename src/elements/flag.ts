@@ -34,7 +34,7 @@ export default class Flag extends BaseElement {
         this.groundPortion.position.y = -(tile.groundSize / 4)
         this.groundPortion.material = Tile.wallMat
 
-        this.pole.position.y = - ((tile.groundSize / 8) + tile.wallSize + 1.5)
+        this.pole.position.y = -tile.wallSize * 4
         this.pole.rotation.y = Math.PI / 2
 
         this.mesh = this.pole
