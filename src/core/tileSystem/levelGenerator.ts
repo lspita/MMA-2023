@@ -24,7 +24,6 @@ export default class LevelGenerator {
         let lastTile: Tile = null
         let stepDirection: Direction = null
         let lastStepDirection: Direction = null
-        let lastObstacle = -1
         const rawTiles: Tile[] = []
 
         for (let i = 0; i < path.length && i < this.radius; i++) {
@@ -69,7 +68,7 @@ export default class LevelGenerator {
             }
             else {
                 rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
-                if (i >= 1 && i < this.radius - 1 && (i - lastObstacle) > 0 && Math.round(Math.random()) == 0) {
+                if (i >= 1 && i < this.radius - 1 && Math.round(Math.random()) == 0) {
                     let obstacle: Obstacles.Obstacle
                     if (stepDirection == lastStepDirection) {
                         // straight tile
@@ -81,7 +80,7 @@ export default class LevelGenerator {
                     let box = obstacleMesh.getBoundingInfo()
 
                     obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
-                    lastObstacle = i
+
                 }
             }
         })
