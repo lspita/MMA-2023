@@ -3,7 +3,6 @@ import "@babylonjs/inspector"
 import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar } from "@babylonjs/core"
 import State from "./core/state"
 import { CannonJSPlugin } from "@babylonjs/core"
-import createGrid from "./core/debug"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 
@@ -166,7 +165,6 @@ function startGame() {
     ⣿⣧⣀⡀⠉⣻⣿⣧⣤⣤⣤⣤⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
     */
 
-    createGrid(State.scene, 200)
     State.scene.createDefaultEnvironment({
         skyboxColor: Color3.Teal(),
     })
