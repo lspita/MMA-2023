@@ -101,15 +101,10 @@ function startGame() {
     })
 
     const levelGenerator = new LevelGenerator(3, 100, 50)
-    levelGenerator.createLevel()
 
 
-    const ball = new Ball("golfball")
-    ball.mesh.position.y = 5
 
-    State.scene.registerBeforeRender(() => {
-
-    })
+    const ball = levelGenerator.createLevel()
 
     let throwForce = 500
     State.scene.onKeyboardObservable.add(() => {
