@@ -5,42 +5,15 @@ import State from "./core/state"
 import { CannonJSPlugin } from "@babylonjs/core"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
+import Tree from "./elements/tree"
+import { Color4 } from "@babylonjs/core/Maths/math.color"
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 const messageHeading = document.getElementById("message") as HTMLHeadElement
 const menu = document.getElementById("menu") as HTMLDivElement
 
 function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
-    // Initialize babylon scene, engine and camera
-    State.engine = new Engine(canvas, true)
-    State.scene = new Scene(State.engine)
-
-    State.camera = new ArcRotateCamera(
-        'cam',
-        -Math.PI / 4, // Alpha
-        0.75, // Beta
-        100,
-        Vector3.Zero(),
-        State.scene, true
-    )
-
-    State.camera.upperRadiusLimit = State.camera.radius
-    State.camera.lowerRadiusLimit = State.camera.radius / 2
-
-    const light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
-    light.parent = State.camera
-    window.addEventListener("resize", _ => {
-        State.engine.resize(true)
-    })
-
-    // Get delta time and time
-    let lastTime = 0
-    State.scene.registerBeforeRender(() => {
-        State.time = performance.now() * 0.001
-        State.deltaTime = State.time - lastTime
-        lastTime = State.time
-    })
-
+    State.scene.meshes.forEach(mesh => mesh.dispose())
     // Hide/show the Inspector
     window.addEventListener("keydown", (ev) => {
         if (ev.key === 'i') {
@@ -152,35 +125,106 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     ⣿⣧⣀⡀⠉⣻⣿⣧⣤⣤⣤⣤⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
     */
     State.scene.createDefaultEnvironment({
-        skyboxColor: Color3.Teal()
+        skyboxColor: new Color3(State.scene.clearColor.r, State.scene.clearColor.g, State.scene.clearColor.b)
     })
     canvas.focus()
-    State.engine.runRenderLoop(() => {
-        State.scene.render()
-    })
+}
+
+const tilesNumberInput = document.getElementById("tilesNumber") as HTMLInputElement
+const wigglinessInput = document.getElementById("wiggliness") as HTMLInputElement
+const tileSizeInput = document.getElementById("tileSize") as HTMLInputElement
+const startButton = (document.getElementById("start") as HTMLButtonElement)
+
+let nextVal = window.localStorage.getItem("tilesNumber")
+if (nextVal != undefined) {
+    tilesNumberInput.value = nextVal
+}
+
+nextVal = window.localStorage.getItem("wiggliness")
+if (nextVal != undefined) {
+    wigglinessInput.value = nextVal
+}
+
+nextVal = window.localStorage.getItem("tileSize")
+if (nextVal != undefined) {
+    tileSizeInput.value = nextVal
 }
 
 document.querySelectorAll("#menu input").forEach((value) => {
     const element = value as HTMLInputElement
     document.querySelectorAll(`label[for=${element.name}]`).forEach(label => {
         const lbl = label as HTMLLabelElement
-        const startText = lbl.innerText
+        const startText = lbl.innerHTML
         element.addEventListener("input", () => {
             lbl.innerText = startText + element.value
         })
         element.dispatchEvent(new Event("input"))
     })
 })
-const tilesNumberInput = document.getElementById("tilesNumber") as HTMLInputElement
-const wigglinessInput = document.getElementById("wiggliness") as HTMLInputElement
-const tileSizeInput = document.getElementById("tileSize") as HTMLInputElement
 
+// Initialize babylon scene, engine and camera
+State.engine = new Engine(canvas, true)
+State.scene = new Scene(State.engine)
 
-const startButton = (document.getElementById("start") as HTMLButtonElement)
+State.camera = new ArcRotateCamera(
+    'cam',
+    -Math.PI / 4, // Alpha
+    Math.PI / 2.5, // Beta
+    100,
+    Vector3.Zero(),
+    State.scene, true
+)
+
+State.camera.upperRadiusLimit = State.camera.radius
+State.camera.lowerRadiusLimit = State.camera.radius / 2
+
+const light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
+light.parent = State.camera
+light.intensity = 3
+window.addEventListener("resize", _ => {
+    State.engine.resize(true)
+})
+
+// Get delta time and time
+let lastTime = 0
+State.scene.registerBeforeRender(() => {
+    State.time = performance.now() * 0.001
+    State.deltaTime = State.time - lastTime
+    lastTime = State.time
+})
+
+function cameraAutoRotate() {
+    State.camera.alpha += State.deltaTime
+}
+
+new Tree("wisetree", (element) => {
+    element.mesh.scaling.scaleInPlace(3)
+    State.scene.registerBeforeRender(cameraAutoRotate)
+    startButton.disabled = false
+})
+
+State.scene.clearColor = new Color4(2 / 255, 204 / 255, 254 / 255)
+
+State.engine.runRenderLoop(() => {
+    State.scene.render()
+})
+
 startButton.onclick = () => {
     messageHeading.classList.remove("title")
     messageHeading.classList.add("victory")
     messageHeading.innerText = "VITTORIA"
     menu.remove()
-    startGame(parseInt(tilesNumberInput.value), parseInt(wigglinessInput.value), parseInt(tileSizeInput.value))
+    State.camera.beta = Math.PI / 4
+    State.scene.unregisterBeforeRender(cameraAutoRotate)
+    light.intensity = 1
+
+    window.localStorage.setItem("tilesNumber", tilesNumberInput.value)
+    window.localStorage.setItem("wiggliness", wigglinessInput.value)
+    window.localStorage.setItem("tileSize", tileSizeInput.value)
+
+    const tilesNumber = parseInt(tilesNumberInput.value)
+    const wigglines = tilesNumber / 100 * parseInt(wigglinessInput.value)
+    const tileSize = parseInt(tileSizeInput.value)
+
+    startGame(tilesNumber, wigglines, tileSize)
 }

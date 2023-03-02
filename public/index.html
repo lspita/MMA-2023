@@ -11,13 +11,18 @@
         <div class="center">
             <h1 id="message" class="title">CON NOME</h1>
             <div id="menu">
-                <button id="start">START GAME</button>
+                <div class='container'>
+                    <button id="start" class='startBtn' disabled>START</button>
+                </div>
+
                 <label for="tilesNumber">Numero di tiles: </label>
-                <input type="range" name="tilesNumber" id="tilesNumber" min="2" max="20" value="10">
-                <label for="wiggliness">Percentuale di randomicità: </label>
-                <input type="range" name="wiggliness" id="wiggliness" min="0" max="100" value="100">
+                <input type="range" class="slider" name="tilesNumber" id="tilesNumber" min="2" max="20" value="10">
+
+                <label for="wiggliness">Percentuale di casualità: </label>
+                <input type="range" class="slider" name="wiggliness" id="wiggliness" min="0" max="100" value="100">
+
                 <label for="tileSize">Grandezza singola tile: </label>
-                <input type="range" name="tileSize" id="tileSize" min="25" max="100" value="75">
+                <input type="range" class="slider" name="tileSize" id="tileSize" min="50" max="150" value="75">
             </div>
         </div>
     </div>

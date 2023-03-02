@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
 
+:root {
+    --fginput: #FF5E5B;
+    --bginput: #FFED66;
+}
+
 html,
 body {
     overflow: hidden;
@@ -7,6 +12,11 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+    background-color: #33334C;
+}
+
+* {
+    font-family: 'Russo One';
 }
 
 canvas {
@@ -21,6 +31,7 @@ canvas {
     height: 100%;
     z-index: 10;
     pointer-events: none;
+    background-color: transparent;
 }
 
 #menu * {
@@ -43,7 +54,6 @@ canvas {
 #message {
     font-size: 10rem;
     letter-spacing: 1rem;
-    font-family: 'Russo One';
     transform-origin: center;
     text-transform: uppercase;
 }
@@ -54,30 +64,8 @@ canvas {
 }
 
 .title {
-    background: linear-gradient(to right,
-            rgba(255, 0, 0, 1) 0%,
-            rgba(255, 154, 0, 1) 10%,
-            rgba(208, 222, 33, 1) 20%,
-            rgba(79, 220, 74, 1) 30%,
-            rgba(63, 218, 216, 1) 40%,
-            rgba(47, 201, 226, 1) 50%,
-            rgba(28, 127, 238, 1) 60%,
-            rgba(95, 21, 242, 1) 70%,
-            rgba(186, 12, 248, 1) 80%,
-            rgba(251, 7, 217, 1) 90%,
-            rgba(255, 0, 0, 1) 100%);
-    -webkit-background-clip: text;
-    background-repeat: repeat-x;
-    background-clip: text;
-    color: transparent;
-    animation: rainbow_animation 6s infinite linear;
-    background-size: 500% 100%;
-}
-
-@keyframes rainbow_animation {
-    100% {
-        background-position-x: 125%;
-    }
+    color: var(--fginput);
+    margin-top: 0;
 }
 
 .pulse {
@@ -96,8 +84,69 @@ canvas {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    margin-top: 10%;
+    width: min(50%, 500px);
 }
 
 #menu * {
     pointer-events: all;
+    margin-block: 10px;
+}
+
+/* Buttons */
+.startBtn {
+    display: inline-block;
+    background-color: var(--bginput);
+    padding: 30px 80px;
+    border: none;
+    border-radius: 30px;
+    font-size: 20px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--fginput);
+    box-shadow: 0 3px 0 var(--fginput);
+    cursor: pointer;
+    transition: all 100ms linear;
+}
+
+.startBtn:hover {
+    -moz-transform: translateY(-4px);
+    -o-transform: translateY(-4px);
+    -ms-transform: translateY(-4px);
+    -webkit-transform: translateY(-4px);
+    transform: translateY(-4px);
+    box-shadow: 0 7px 0 var(--fginput);
+}
+
+.startBtn:focus {
+    outline: 0;
+}
+
+.slider {
+    appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: var(--bginput);
+    outline: none;
+    transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--fginput);
+    cursor: pointer;
+}
+
+label {
+    color: #fefefe;
+    letter-spacing: .1rem;
 }

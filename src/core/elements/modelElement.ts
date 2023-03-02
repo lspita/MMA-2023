@@ -1,9 +1,8 @@
 import { Mesh, SceneLoader } from "@babylonjs/core"
-import Utils from "../utils"
 import BaseElement from "./base"
 
 export default abstract class ModelElement extends BaseElement {
-    constructor(name: string, root: string, model: string, importCallback?: (element: BaseElement) => void) {
+    constructor(name: string, root: string, model: string, importCallback?: (element: ModelElement) => void) {
         super()
         this.mesh = new Mesh(name)
         SceneLoader.ImportMeshAsync("", root, model).then((result) => {
