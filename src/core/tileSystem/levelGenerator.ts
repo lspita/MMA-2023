@@ -24,6 +24,8 @@ export default class LevelGenerator {
         let lastTile: Tile = null
         let stepDirection: Direction = null
         let lastStepDirection: Direction = null
+        const tileInfo: { straight: boolean, dir: Direction }[] = []
+
         const rawTiles: Tile[] = []
 
         for (let i = 0; i < path.length && i < this.radius; i++) {
@@ -45,12 +47,17 @@ export default class LevelGenerator {
                 }
                 tile.destroyWall(dirInfo[stepDirection].opposite)
                 lastTile.destroyWall(stepDirection)
+                tileInfo.push({
+                    straight: stepDirection == lastStepDirection,
+                    dir: stepDirection
+                })
             }
 
             lastTile = tile
             lastStepDirection = stepDirection
             rawTiles.push(lastTile)
         }
+
         let rawPos: Vector3
         let ball: Ball = null
         let endPos: Vector3 = null
@@ -68,15 +75,18 @@ export default class LevelGenerator {
             }
             else {
                 rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
-                if (i >= 1 && i < this.radius - 1 && Math.round(Math.random()) == 0) {
+                if (i >= 1 && i < this.radius - 1 && Math.round(Math.random() * 0) == 0) {
                     let obstacle: Obstacles.Obstacle
-                    if (stepDirection == lastStepDirection) {
+                    if (tileInfo[i].straight) {
                         // straight tile
                         obstacle = Utils.random(LevelGenerator.obstacles)
                     } else {
                         obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.curve == true))
                     }
                     let obstacleMesh = obstacle.builder(`${rawTile.mesh.name}Obstacle`, rawTile)
+                    const coordinates = dirInfo[tileInfo[i].dir].coordinates
+
+                    obstacleMesh.rotation.y = Math.atan2(coordinates.y, coordinates.x)
                     let box = obstacleMesh.getBoundingInfo()
 
                     obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)

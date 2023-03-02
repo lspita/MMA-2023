@@ -1,5 +1,6 @@
 import { MeshBuilder, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
 import BaseElement from "../elements/base"
+import Utils from "../utils"
 
 export type Direction = typeof Tile.directions[number]
 export type DirInfo = {
@@ -43,31 +44,26 @@ export default class Tile extends BaseElement {
         this.wallSize = this.size - this.groundSize
 
         this.mesh = MeshBuilder.CreateBox(name, { width: this.groundSize, depth: this.groundSize, height: this.groundSize - this.wallSize })
-        this.createMaterial(Tile.material, () => {
-            Tile.material = Tile.generateGroundMat()
-            Tile.wallMat = Tile.generateWallMat()
+
+        this.mesh.material = Utils.createMaterial(Tile.material, () => {
+            Tile.material = new StandardMaterial("groundMat")
+            let groundTexture = new Texture(require("/public/assets/textures/tilefloor.png"))
+            groundTexture.uScale = 2
+            groundTexture.vScale = 2
+            Tile.material.diffuseTexture = groundTexture
             return Tile.material
+        })
+
+        Utils.createMaterial(Tile.wallMat, () => {
+            Tile.wallMat = new StandardMaterial("wallMat")
+            Tile.wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
+            return Tile.wallMat
         })
 
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
         }
         this.mesh.position.y = -(this.groundSize - this.wallSize) / 2
-    }
-
-    private static generateGroundMat() {
-        let groundMat = new StandardMaterial("groundMat")
-        let groundTexture = new Texture(require("/public/assets/textures/tilefloor.png"))
-        groundTexture.uScale = 2
-        groundTexture.vScale = 2
-        groundMat.diffuseTexture = groundTexture
-        return groundMat
-    }
-
-    private static generateWallMat() {
-        let wallMat = new StandardMaterial("wallMat")
-        wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
-        return wallMat
     }
 
     destroyWall(direction: Direction) {
