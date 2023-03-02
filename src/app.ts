@@ -190,6 +190,7 @@ function cameraAutoRotate() {
 }
 
 new Tree("wisetree", (element) => {
+    element.mesh.position.y -= 1.5
     element.mesh.scaling.scaleInPlace(3)
     State.scene.registerBeforeRender(cameraAutoRotate)
     startButton.disabled = false
