@@ -88,7 +88,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
         State.camera.target = ballCenter
 
-        if (ballCenter.y <= -2) {
+        if (ballCenter.y <= -3) {
             if (ballCenter.x < endPos.x + 2 &&
                 ballCenter.x > endPos.x - 2 &&
                 ballCenter.z < endPos.z + 2 &&
@@ -130,28 +130,20 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     canvas.focus()
 }
 
-const tilesNumberInput = document.getElementById("tilesNumber") as HTMLInputElement
-const wigglinessInput = document.getElementById("wiggliness") as HTMLInputElement
-const tileSizeInput = document.getElementById("tileSize") as HTMLInputElement
+// const tilesNumberInput = document.getElementById("tilesNumber") as HTMLInputElement
+// const wigglinessInput = document.getElementById("wiggliness") as HTMLInputElement
+// const tileSizeInput = document.getElementById("tileSize") as HTMLInputElement
 const startButton = (document.getElementById("start") as HTMLButtonElement)
-
-let nextVal = window.localStorage.getItem("tilesNumber")
-if (nextVal != undefined) {
-    tilesNumberInput.value = nextVal
-}
-
-nextVal = window.localStorage.getItem("wiggliness")
-if (nextVal != undefined) {
-    wigglinessInput.value = nextVal
-}
-
-nextVal = window.localStorage.getItem("tileSize")
-if (nextVal != undefined) {
-    tileSizeInput.value = nextVal
-}
 
 document.querySelectorAll("#menu input").forEach((value) => {
     const element = value as HTMLInputElement
+    let nextVal = window.localStorage.getItem(element.name)
+    if (nextVal != undefined && nextVal != "" && nextVal != null) {
+        element.value = nextVal
+    }
+    element.addEventListener("input", () => {
+        window.localStorage.setItem(element.name, element.value)
+    })
     document.querySelectorAll(`label[for=${element.name}]`).forEach(label => {
         const lbl = label as HTMLLabelElement
         const startText = lbl.innerHTML
@@ -215,16 +207,13 @@ startButton.onclick = () => {
     messageHeading.innerText = "VITTORIA"
     menu.remove()
     State.camera.beta = Math.PI / 4
+    State.camera.alpha = -Math.PI / 4
     State.scene.unregisterBeforeRender(cameraAutoRotate)
     light.intensity = 1
 
-    window.localStorage.setItem("tilesNumber", tilesNumberInput.value)
-    window.localStorage.setItem("wiggliness", wigglinessInput.value)
-    window.localStorage.setItem("tileSize", tileSizeInput.value)
-
-    const tilesNumber = parseInt(tilesNumberInput.value)
-    const wigglines = tilesNumber / 100 * parseInt(wigglinessInput.value)
-    const tileSize = parseInt(tileSizeInput.value)
+    const tilesNumber = parseInt(window.localStorage.getItem("tilesNumber"))
+    const wigglines = tilesNumber / 100 * parseInt(window.localStorage.getItem("wiggliness"))
+    const tileSize = parseInt(window.localStorage.getItem("tileSize"))
 
     startGame(tilesNumber, wigglines, tileSize)
 }
