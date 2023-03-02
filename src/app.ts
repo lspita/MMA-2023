@@ -1,6 +1,6 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, MeshBuilder } from "@babylonjs/core"
 import State from "./core/state"
 import { CannonJSPlugin } from "@babylonjs/core"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
@@ -15,16 +15,6 @@ const menu = document.getElementById("menu") as HTMLDivElement
 
 function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     State.scene.meshes.forEach(mesh => mesh.dispose())
-    // Hide/show the Inspector
-    window.addEventListener("keydown", (ev) => {
-        if (ev.key === 'i') {
-            if (State.scene.debugLayer.isVisible()) {
-                State.scene.debugLayer.hide()
-            } else {
-                State.scene.debugLayer.show()
-            }
-        }
-    })
 
     State.scene.onKeyboardObservable.add((kbInfo) => {
         switch (kbInfo.type) {
@@ -164,7 +154,7 @@ State.scene = new Scene(State.engine)
 
 State.camera = new ArcRotateCamera(
     'cam',
-    -Math.PI / 4, // Alpha
+    -Math.PI / 2, // Alpha
     Math.PI / 2.5, // Beta
     100,
     Vector3.Zero(),
@@ -181,6 +171,16 @@ window.addEventListener("resize", _ => {
     State.engine.resize(true)
 })
 
+window.addEventListener("keydown", (ev) => {
+    if (ev.key === 'i') {
+        if (State.scene.debugLayer.isVisible()) {
+            State.scene.debugLayer.hide()
+        } else {
+            State.scene.debugLayer.show()
+        }
+    }
+})
+
 // Get delta time and time
 let lastTime = 0
 State.scene.registerBeforeRender(() => {
@@ -189,14 +189,25 @@ State.scene.registerBeforeRender(() => {
     lastTime = State.time
 })
 
-function cameraAutoRotate() {
-    State.camera.alpha += State.deltaTime
+let followFunc: () => void
+
+const pickPlane = MeshBuilder.CreatePlane("pickPlane", { height: canvas.height, width: canvas.width })
+pickPlane.position.z = -10
+pickPlane.isVisible = false
+pickPlane.isPickable = true
+
+function followMouse(mesh: Mesh) {
+    const mousePos = State.scene.pick(State.scene.pointerX, State.scene.pointerY, (mesh) => mesh === pickPlane).pickedPoint
+    mesh.lookAt(mousePos)
 }
 
 new Tree("wisetree", (element) => {
-    element.mesh.position.y -= 1.5
+    element.mesh.position.y = 5
     element.mesh.scaling.scaleInPlace(3)
-    State.scene.registerBeforeRender(cameraAutoRotate)
+    followFunc = () => {
+        followMouse(element.mesh)
+    }
+    State.scene.registerBeforeRender(followFunc)
     startButton.disabled = false
 })
 
@@ -210,7 +221,7 @@ startButton.onclick = () => {
     menu.remove()
     State.camera.beta = Math.PI / 4
     State.camera.alpha = -Math.PI / 4
-    State.scene.unregisterBeforeRender(cameraAutoRotate)
+    State.scene.unregisterBeforeRender(followFunc)
     light.intensity = 1
 
     const tilesNumber = parseInt(window.localStorage.getItem("tilesNumber"))
