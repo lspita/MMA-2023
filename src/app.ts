@@ -7,6 +7,7 @@ import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 import Tree from "./elements/tree"
 import { Color4 } from "@babylonjs/core/Maths/math.color"
+import Arrow from "./elements/arrow"
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 const messageHeading = document.getElementById("message") as HTMLHeadElement
@@ -64,6 +65,8 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
 
     const { ball, endPos } = levelGenerator.createLevel()
+    let arrow = new Arrow("direction", ball.mesh.position)
+
     let throwForce = 500
 
     State.scene.onKeyboardObservable.add(() => {
@@ -87,6 +90,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     function ballLogic() {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
         State.camera.target = ballCenter
+
 
         if (ballCenter.y <= -3) {
             if (ballCenter.x < endPos.x + 2 &&
@@ -198,9 +202,6 @@ new Tree("wisetree", (element) => {
 
 State.scene.clearColor = new Color4(2 / 255, 204 / 255, 254 / 255)
 
-State.engine.runRenderLoop(() => {
-    State.scene.render()
-})
 
 startButton.onclick = () => {
     messageHeading.classList.remove("title")
@@ -218,3 +219,9 @@ startButton.onclick = () => {
 
     startGame(tilesNumber, wigglines, tileSize)
 }
+
+startButton.click()
+
+State.engine.runRenderLoop(() => {
+    State.scene.render()
+})
