@@ -1,6 +1,6 @@
 import "@babylonjs/core/Debug/debugLayer"
 import "@babylonjs/inspector"
-import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, MeshBuilder } from "@babylonjs/core"
+import { Engine, Scene, ArcRotateCamera, Vector3, Color3, DirectionalLight, KeyboardEventTypes, Scalar, MeshBuilder, Mesh } from "@babylonjs/core"
 import State from "./core/state"
 import { CannonJSPlugin } from "@babylonjs/core"
 import LevelGenerator from "./core/tileSystem/levelGenerator"
