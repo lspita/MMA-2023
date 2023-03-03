@@ -1,4 +1,4 @@
-import { Color3, Mesh, StandardMaterial, Vector3 } from "@babylonjs/core"
+import { Color3, Mesh, Sound, StandardMaterial, Vector3 } from "@babylonjs/core"
 import { MeshBuilder } from "@babylonjs/core"
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode"
 import BaseElement from "../core/elements/base"
@@ -6,7 +6,8 @@ import State from "../core/state"
 import Utils from "../core/utils"
 import GolfClub from "./golfclub"
 
-export default class Arrow extends BaseElement {
+export default class ThrowIndicator extends BaseElement {
+    private static golfhit: Sound
     private currentFunction: () => void
     pivot: Vector3
     golfclubPivot: TransformNode
@@ -39,10 +40,11 @@ export default class Arrow extends BaseElement {
             }
         })
 
-        this.mesh.material = Utils.createMaterial(Arrow.material, () => {
-            Arrow.material = new StandardMaterial("arrowMat")
-            Arrow.material.diffuseColor = Color3.Yellow()
-            return Arrow.material
+        this.mesh.material = Utils.createMaterial(ThrowIndicator.material, () => {
+            ThrowIndicator.material = new StandardMaterial("arrowMat")
+            ThrowIndicator.material.diffuseColor = Color3.Yellow()
+            ThrowIndicator.golfhit = new Sound("golfhit", "assets/audio/golfhit.mp3", State.scene)
+            return ThrowIndicator.material
         })
 
         new GolfClub("golfClub", (element) => {
@@ -99,6 +101,7 @@ export default class Arrow extends BaseElement {
                 this.mesh.dispose()
                 this.golfclubPivot.dispose()
                 this.throwConfirmed = false
+                ThrowIndicator.golfhit.play()
                 this.onThrow(this.direction.scale(this.force * this.maxForce))
             }
         }

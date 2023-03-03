@@ -7,7 +7,7 @@ import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 import Tree from "./elements/tree"
 import { Color4 } from "@babylonjs/core/Maths/math.color"
-import Arrow from "./elements/arrow"
+import ThrowIndicator from "./elements/arrow"
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 const messageHeading = document.getElementById("message") as HTMLHeadElement
@@ -98,7 +98,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
                 ) <= velocityMargin
             ) {
                 checkpoint = ball.mesh.position
-                new Arrow("direction", ball.mesh, (direction) => {
+                new ThrowIndicator("direction", ball.mesh, (direction) => {
                     ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
                     arrowPresent = false
                 }, 150)
