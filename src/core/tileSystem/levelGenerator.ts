@@ -67,7 +67,7 @@ export default class LevelGenerator {
             if (i == rawTiles.length - 1) {
                 flag = new Flag("endFlag", rawTile)
                 ball = new Ball("golfball")
-                ball.mesh.position.y = 2.5
+                ball.mesh.position.y = 3
                 let box = flag.mesh.getBoundingInfo()
                 flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
                 endPos = flag.createHole(rawTile)
