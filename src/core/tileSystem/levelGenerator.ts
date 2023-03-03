@@ -57,21 +57,21 @@ export default class LevelGenerator {
             lastStepDirection = stepDirection
             rawTiles.push(lastTile)
         }
-
+        let flag: Flag
         let rawPos: Vector3
         let ball: Ball = null
         let endPos: Vector3 = null
         rawTiles.forEach((rawTile, i) => {
             rawPos = rawTile.mesh.position
             if (i == rawTiles.length - 1) {
-                const flag = new Flag("endFlag", rawTile)
+                flag = new Flag("endFlag", rawTile)
                 ball = new Ball("golfball")
                 ball.mesh.position.y = 5
                 let box = flag.mesh.getBoundingInfo()
                 flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
                 endPos = flag.createHole(rawTile)
                 flag.mesh.position.y += 10
-                flag.follow(ball.mesh, 15)
+                flag.follow(ball.mesh)
             }
             else {
                 rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
@@ -96,7 +96,8 @@ export default class LevelGenerator {
         })
         return {
             ball,
-            endPos
+            endPos,
+            holeDiameter: flag.holeDiameter
         }
     }
 }

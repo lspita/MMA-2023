@@ -54,22 +54,23 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
 
     const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
 
-    const { ball, endPos } = levelGenerator.createLevel()
+    const { ball, endPos, holeDiameter } = levelGenerator.createLevel()
 
     let checkpoint = ball.mesh.position
     let ballCenter: Vector3 = checkpoint
     let arrowPresent = false
     const velocityMargin = 0.1
 
+    const holeRange = (holeDiameter / 2) + 1
     function ballLogic() {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
         State.camera.target = ballCenter
 
         if (ballCenter.y <= -3) {
-            if (ballCenter.x < endPos.x + 2 &&
-                ballCenter.x > endPos.x - 2 &&
-                ballCenter.z < endPos.z + 2 &&
-                ballCenter.z > endPos.z - 2) {
+            if (ballCenter.x < endPos.x + holeRange &&
+                ballCenter.x > endPos.x - holeRange &&
+                ballCenter.z < endPos.z + holeRange &&
+                ballCenter.z > endPos.z - holeRange) {
                 ball.mesh.unregisterBeforeRender(ballLogic)
                 ball.mesh.dispose()
                 messageHeading.style.visibility = "visible"

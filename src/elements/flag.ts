@@ -9,9 +9,9 @@ export default class Flag extends BaseElement {
     private groundPortion: Mesh
     private pole: Mesh
     private cloth: Mesh
-    tileMesh: Mesh
+    holeDiameter: number
 
-    constructor(name: string, tile: Tile) {
+    constructor(name: string, tile: Tile, holeDiameter: number = 8) {
         super()
 
         this.pole = MeshBuilder.CreateCylinder(name + "Pole", { diameter: tile.wallSize * 0.3, height: tile.groundSize * 0.5 })
@@ -20,13 +20,13 @@ export default class Flag extends BaseElement {
             Flag.material.diffuseColor = new Color3(130 / 255, 135 / 255, 136 / 255)
             return Flag.material
         })
-
+        this.holeDiameter = holeDiameter
         this.cloth = this.createFlag(tile)
         this.cloth.parent = this.pole
         this.cloth.position.y = (tile.groundSize / 4) - tile.groundSize / 15
         this.cloth.rotation.y = Math.PI / 2
 
-        this.groundPortion = MeshBuilder.CreateCylinder(name + "Ground", { diameter: 5, height: 1 })
+        this.groundPortion = MeshBuilder.CreateCylinder(name + "Ground", { diameter: this.holeDiameter, height: 1 })
         this.groundPortion.parent = this.pole
         this.groundPortion.position.y = -(tile.groundSize / 4)
         this.groundPortion.material = Tile.wallMat
@@ -92,7 +92,7 @@ export default class Flag extends BaseElement {
         }
     }
     createHole(tile: Tile, height: number = 5) {
-        const holemesh = MeshBuilder.CreateCylinder("", { diameter: 5, height: height + 1 })
+        const holemesh = MeshBuilder.CreateCylinder("", { diameter: this.holeDiameter, height: height + 1 })
         const endPos = new Vector3(
             this.mesh.position.x,
             -height / 2,
@@ -112,10 +112,11 @@ export default class Flag extends BaseElement {
         return endPos
     }
 
-    follow(mesh: Mesh, radius: number) {
+    follow(mesh: Mesh) {
         const startY = mesh.position.y
         const flagStartY = this.mesh.position.y
         const startRotY = this.mesh.rotation.y
+        const radius = this.holeDiameter * 3
 
         State.scene.registerBeforeRender(() => {
             const relativePos = mesh.position.subtract(this.mesh.position)
@@ -128,7 +129,6 @@ export default class Flag extends BaseElement {
             )
             const baseFlagPos = new Vector3(this.mesh.position.x, startY, this.mesh.position.z)
             const distance = Vector3.Distance(baseFlagPos, mesh.position)
-
             if (distance <= radius) {
                 this.mesh.position.y = flagStartY + (Math.cos((Math.PI * distance) / (2 * radius)) * 15)
             }
