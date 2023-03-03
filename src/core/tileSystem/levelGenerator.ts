@@ -61,12 +61,13 @@ export default class LevelGenerator {
         let rawPos: Vector3
         let ball: Ball = null
         let endPos: Vector3 = null
+        let lastObstacle = 0
         rawTiles.forEach((rawTile, i) => {
             rawPos = rawTile.mesh.position
             if (i == rawTiles.length - 1) {
                 flag = new Flag("endFlag", rawTile)
                 ball = new Ball("golfball")
-                ball.mesh.position.y = 5
+                ball.mesh.position.y = 2.5
                 let box = flag.mesh.getBoundingInfo()
                 flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
                 endPos = flag.createHole(rawTile)
@@ -75,7 +76,8 @@ export default class LevelGenerator {
             }
             else {
                 rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
-                if (i >= 1 && i < this.radius - 1 && Math.round(Math.random()) == 0) {
+                if (i >= 1 && i < this.radius - 1 && (Math.round(Math.random()) == 0 || i - lastObstacle > 2)) {
+                    lastObstacle = i
                     let obstacle: Obstacles.Obstacle
                     if (tileInfo[i].straight) {
                         // straight tile
@@ -90,7 +92,6 @@ export default class LevelGenerator {
                     let box = obstacleMesh.getBoundingInfo()
 
                     obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
-
                 }
             }
         })

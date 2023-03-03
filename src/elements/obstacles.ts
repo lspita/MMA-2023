@@ -12,17 +12,17 @@ export type Obstacle = {
 export const Wheel: Obstacle = {
     curve: true,
     builder: (name: string, tile: Tile) => {
-        let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.2, diameter: tile.wallSize * 0.5 })
+        let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
         pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.CylinderImpostor, { mass: 0 })
         pivot.position.y = 0
 
-        let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1, diameter: tile.wallSize * 1.5 })
+        let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
         mid.material = Tile.wallMat
         mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, { mass: 0 })
         mid.parent = pivot
         mid.position = new Vector3(0, -tile.wallSize * 0.15, 0)
 
-        let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 0.9, width: tile.groundSize * 0.9, depth: tile.wallSize * 0.9 })
+        let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 1.4, width: tile.groundSize * 0.9, depth: tile.groundSize * 0.04 })
         wall.material = Tile.wallMat
         wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, { mass: 0 })
         wall.parent = mid
@@ -42,8 +42,8 @@ export const Barriers: Obstacle = {
         const pivot = new Mesh(name)
         pivot.position.y = 0.5
 
-        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize, width: boxSize, depth: boxSize })
-        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize, width: boxSize, depth: boxSize })
+        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize * 1.5, width: boxSize, depth: boxSize })
+        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize * 1.5, width: boxSize, depth: boxSize })
         box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
         box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
         box1.parent = box2.parent = pivot
@@ -64,46 +64,6 @@ export const Barriers: Obstacle = {
             box2.position.x = -box1.position.x
             box2.position.z = -box1.position.z
         })
-        return pivot
-    }
-}
-
-let dongMat: StandardMaterial
-export const Pendolum: Obstacle = {
-    curve: false,
-    builder: (name: string, tile: Tile) => {
-        let pivot = MeshBuilder.CreateBox(name, { height: tile.wallSize / 2, width: tile.wallSize * 0.35, depth: tile.wallSize * 0.75 })
-
-        dongMat = Utils.createMaterial(dongMat, () => {
-            dongMat = new StandardMaterial("dongMat")
-            dongMat.diffuseColor.set(1, 215 / 255, 0)
-            return dongMat
-        })
-
-        pivot.position.y = (tile.groundSize * (2 / 3))
-        const support = MeshBuilder.CreateBox(name + "support", { height: tile.groundSize * (2 / 3), width: tile.wallSize * 0.2, depth: tile.wallSize * 0.6 })
-        const dong = MeshBuilder.CreateCylinder(name + "dong", { height: tile.wallSize * 0.35, diameter: tile.wallSize * tile.wallSize })
-        dong.rotation.z = Math.PI / 2
-        dong.material = dongMat
-
-        pivot.material = dongMat
-        support.material = Tile.wallMat
-
-
-        pivot.addChild(dong)
-        pivot.addChild(support)
-
-        support.position.y = (-tile.groundSize * (1 / 3))
-        pivot.position.y += (tile.wallSize * tile.wallSize) / 2
-
-        const pendolum = Utils.merge(support, dong)
-        pivot.addChild(pendolum)
-
-
-        State.scene.registerBeforeRender(() => {
-            pivot.rotate(Vector3.Right(), (Math.cos(State.time * 2) * 0.7) - pivot.absoluteRotationQuaternion.toEulerAngles().x)
-        })
-
         return pivot
     }
 }

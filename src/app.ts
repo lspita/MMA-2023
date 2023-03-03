@@ -49,7 +49,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const gravityVector = new Vector3(0, -9.81 * 4, 0)
+    const gravityVector = new Vector3(0, -9.81 * 5, 0)
     State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
 
     const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
@@ -98,7 +98,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
                 ) <= velocityMargin
             ) {
                 checkpoint = ball.mesh.position
-                new Arrow("direction", ball.mesh.position, (direction) => {
+                new Arrow("direction", ball.mesh, (direction) => {
                     ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
                     arrowPresent = false
                 }, 150)
@@ -199,25 +199,39 @@ State.scene.registerBeforeRender(() => {
 
 let followFunc: () => void
 
+const mousePos: { x: number, y: number } = {
+    x: 0,
+    y: 0
+}
+
+window.addEventListener("mousemove", (e) => {
+    mousePos.x = e.clientX
+    mousePos.y = e.clientY
+})
+
 const pickPlane = MeshBuilder.CreatePlane("pickPlane", { height: canvas.height, width: canvas.width })
 pickPlane.position.z = -10
 pickPlane.isVisible = false
 pickPlane.isPickable = true
 
 function followMouse(mesh: Mesh) {
-    const mousePos = State.scene.pick(State.scene.pointerX, State.scene.pointerY, (mesh) => mesh === pickPlane).pickedPoint
-    mesh.lookAt(mousePos)
+    const mousePosScene = State.scene.pick(mousePos.x, mousePos.y, (mesh) => mesh === pickPlane).pickedPoint
+    mesh.lookAt(mousePosScene)
 }
 
-new Tree("wisetree", (element) => {
-    element.mesh.position.y = 5
-    element.mesh.scaling.scaleInPlace(3)
-    followFunc = () => {
-        followMouse(element.mesh)
-    }
-    State.scene.registerBeforeRender(followFunc)
+try {
+    new Tree("wisetree", (element) => {
+        element.mesh.position.y = 5
+        element.mesh.scaling.scaleInPlace(3)
+        followFunc = () => {
+            followMouse(element.mesh)
+        }
+        State.scene.registerBeforeRender(followFunc)
+        startButton.disabled = false
+    })
+} catch (error) {
     startButton.disabled = false
-})
+}
 
 State.scene.clearColor = new Color4(2 / 255, 204 / 255, 254 / 255)
 

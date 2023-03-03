@@ -1,20 +1,23 @@
-import { Color3, StandardMaterial, Vector3 } from "@babylonjs/core"
+import { Color3, Mesh, StandardMaterial, Vector3 } from "@babylonjs/core"
 import { MeshBuilder } from "@babylonjs/core"
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode"
 import BaseElement from "../core/elements/base"
 import State from "../core/state"
 import Utils from "../core/utils"
+import GolfClub from "./golfclub"
 
 export default class Arrow extends BaseElement {
-    pivot: Vector3
     private currentFunction: () => void
+    pivot: Vector3
+    golfclubPivot: TransformNode
     direction: Vector3
     force: number
     maxForce: number
     onThrow: (direction: Vector3) => void
 
-    constructor(name: string, pivotPosition: Vector3, onThrow: (direction: Vector3) => void, maxForce = 10) {
+    constructor(name: string, mesh: Mesh, onThrow: (direction: Vector3) => void, maxForce = 10) {
         super()
-        this.pivot = pivotPosition
+        this.pivot = mesh.getAbsolutePosition()
         this.maxForce = maxForce
         this.currentFunction = this.spin.bind(this)
         this.onThrow = onThrow
@@ -42,16 +45,29 @@ export default class Arrow extends BaseElement {
             return Arrow.material
         })
 
-        this.mesh.position = new Vector3(
-            this.pivot.x,
-            this.pivot.y,
-            this.pivot.z + 5
-        )
-        this.mesh.registerBeforeRender(this.currentFunction)
+        new GolfClub("golfClub", (element) => {
+            element.mesh.scaling.scaleInPlace(2)
+            this.golfclubPivot = new TransformNode(element.mesh.name + "pivot")
+            this.golfclubPivot.position = new Vector3(
+                this.pivot.x,
+                this.pivot.y + 16,
+                this.pivot.z - 3
+            )
+            element.mesh.parent = this.golfclubPivot
+            element.mesh.position.y -= 16
+            this.mesh.position = new Vector3(
+                this.pivot.x,
+                this.pivot.y - 1.25,
+                this.pivot.z + 5
+            )
+            this.mesh.registerBeforeRender(this.currentFunction)
+        })
     }
 
     spin() {
         this.mesh.rotateAround(this.pivot, Vector3.Up(), State.deltaTime * 1.5)
+        this.golfclubPivot.rotateAround(this.pivot, Vector3.Up(), State.deltaTime * 1.5)
+
         this.direction = this.mesh.position.subtract(this.pivot)
         if (State.keys[" "]) {
             this.mesh.unregisterBeforeRender(this.currentFunction)
@@ -62,16 +78,29 @@ export default class Arrow extends BaseElement {
     }
 
     private lastValue: number = 0
-    scale() {
-        this.force = Math.abs(Math.sin(State.time * 2) * 10)
+    private throwConfirmed: boolean = false
 
-        this.mesh.translate(Vector3.Forward(), this.force - this.lastValue)
-        this.lastValue = this.force
+    scale() {
+        if (!this.throwConfirmed) {
+            this.force = Math.abs(Math.sin(State.time * 2) * 10)
+            this.mesh.translate(Vector3.Forward(), this.force - this.lastValue)
+            this.golfclubPivot.rotate(Vector3.Right(), (this.force - this.lastValue) / 4)
+
+            this.lastValue = this.force
+        }
 
         if (State.keys[" "]) {
-            this.mesh.unregisterBeforeRender(this.currentFunction)
-            this.mesh.dispose()
-            this.onThrow(this.direction.scale(this.force * this.maxForce))
+            this.throwConfirmed = true
+        }
+        if (this.throwConfirmed) {
+            this.golfclubPivot.rotate(Vector3.Right(), -0.05)
+            if (this.golfclubPivot.absoluteRotationQuaternion.toEulerAngles().x <= 0) {
+                this.mesh.unregisterBeforeRender(this.currentFunction)
+                this.mesh.dispose()
+                this.golfclubPivot.dispose()
+                this.throwConfirmed = false
+                this.onThrow(this.direction.scale(this.force * this.maxForce))
+            }
         }
     }
 }
