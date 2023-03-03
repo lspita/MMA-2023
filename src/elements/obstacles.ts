@@ -1,6 +1,5 @@
 import { MeshBuilder, Mesh, Vector3, PhysicsImpostor, Tools } from "@babylonjs/core"
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial"
-import { BoxBuilder, Collider } from "babylonjs"
 import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
 import Utils from "../core/utils"
@@ -75,15 +74,15 @@ export const ClosingWalls: Obstacle = {
         const pivot = new Mesh(name)
         const boxSize = tile.groundSize / 5
 
-        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 2})
-        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 2})
+        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 2 })
+        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 2 })
         box2.rotation.y = Math.PI
 
-        box1.position = new Vector3(0, 1, (tile.groundSize - (tile.groundSize / 2) + 2)/ 2)
-        box2.position = new Vector3(0, 1, -(tile.groundSize - (tile.groundSize / 2) + 2)/ 2)
+        box1.position = new Vector3(0, 1, (tile.groundSize - (tile.groundSize / 2) + 2) / 2)
+        box2.position = new Vector3(0, 1, -(tile.groundSize - (tile.groundSize / 2) + 2) / 2)
 
         box1.scaling.y = box2.scaling.y = 1.40
-        
+
         box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
         box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
 
@@ -94,9 +93,8 @@ export const ClosingWalls: Obstacle = {
 
         let scalingFactor = 0
         State.scene.registerBeforeRender(() => {
-            
-            if (Math.sin(State.time) > 0)
-            {
+
+            if (Math.sin(State.time) > 0) {
                 scalingFactor = -0.025
             }
             else {
