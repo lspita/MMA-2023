@@ -49,56 +49,64 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const gravityVector = new Vector3(0, -9.81 * 4, 0)
+    const gravityVector = new Vector3(0, -9.81 * 5, 0)
     State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
 
     const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
 
-    const { ball, endPos } = levelGenerator.createLevel()
-    let arrow = new Arrow("direction", ball.mesh.position)
+    const { ball, endPos, holeDiameter } = levelGenerator.createLevel()
 
-    let throwForce = 500
+    let checkpoint = ball.mesh.position
+    let ballCenter: Vector3 = checkpoint
+    let arrowPresent = false
+    const velocityMargin = 0.1
 
-    State.scene.onKeyboardObservable.add(() => {
-        const position = ball.mesh.getAbsolutePosition()
-        if (State.keys["w"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, 0, throwForce), position)
-        }
-        if (State.keys["s"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, 0, -throwForce), position)
-        }
-        if (State.keys["a"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(-throwForce, 0, 0), position)
-        }
-        if (State.keys["d"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
-        }
-    })
-
-    const startBallPos = ball.mesh.position
-    let ballCenter: Vector3 = startBallPos
+    const holeRange = (holeDiameter / 2) + 1
     function ballLogic() {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
         State.camera.target = ballCenter
 
-
         if (ballCenter.y <= -3) {
-            if (ballCenter.x < endPos.x + 2 &&
-                ballCenter.x > endPos.x - 2 &&
-                ballCenter.z < endPos.z + 2 &&
-                ballCenter.z > endPos.z - 2) {
+            if (ballCenter.x < endPos.x + holeRange &&
+                ballCenter.x > endPos.x - holeRange &&
+                ballCenter.z < endPos.z + holeRange &&
+                ballCenter.z > endPos.z - holeRange) {
                 ball.mesh.unregisterBeforeRender(ballLogic)
                 ball.mesh.dispose()
                 messageHeading.style.visibility = "visible"
                 messageHeading.classList.add("pulse")
+                return
             }
             else {
-                ball.mesh.position = startBallPos
+                ball.mesh.position = checkpoint
+
                 ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
             }
         }
+
+        if (arrowPresent == false) {
+            if (
+                Vector3.Distance(
+                    ball.mesh.physicsImpostor.getLinearVelocity(),
+                    Vector3.Zero()
+                ) <= velocityMargin &&
+
+                Vector3.Distance(
+                    ball.mesh.physicsImpostor.getAngularVelocity(),
+                    Vector3.Zero()
+                ) <= velocityMargin
+            ) {
+                checkpoint = ball.mesh.position
+                new Arrow("direction", ball.mesh, (direction) => {
+                    ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
+                    arrowPresent = false
+                }, 150)
+                arrowPresent = true
+            }
+        }
     }
+
     ball.mesh.registerBeforeRender(ballLogic)
 
     /*
@@ -191,25 +199,39 @@ State.scene.registerBeforeRender(() => {
 
 let followFunc: () => void
 
+const mousePos: { x: number, y: number } = {
+    x: 0,
+    y: 0
+}
+
+window.addEventListener("mousemove", (e) => {
+    mousePos.x = e.clientX
+    mousePos.y = e.clientY
+})
+
 const pickPlane = MeshBuilder.CreatePlane("pickPlane", { height: canvas.height, width: canvas.width })
 pickPlane.position.z = -10
 pickPlane.isVisible = false
 pickPlane.isPickable = true
 
 function followMouse(mesh: Mesh) {
-    const mousePos = State.scene.pick(State.scene.pointerX, State.scene.pointerY, (mesh) => mesh === pickPlane).pickedPoint
-    mesh.lookAt(mousePos)
+    const mousePosScene = State.scene.pick(mousePos.x, mousePos.y, (mesh) => mesh === pickPlane).pickedPoint
+    mesh.lookAt(mousePosScene)
 }
 
-new Tree("wisetree", (element) => {
-    element.mesh.position.y = 5
-    element.mesh.scaling.scaleInPlace(3)
-    followFunc = () => {
-        followMouse(element.mesh)
-    }
-    State.scene.registerBeforeRender(followFunc)
+try {
+    new Tree("wisetree", (element) => {
+        element.mesh.position.y = 5
+        element.mesh.scaling.scaleInPlace(3)
+        followFunc = () => {
+            followMouse(element.mesh)
+        }
+        State.scene.registerBeforeRender(followFunc)
+        startButton.disabled = false
+    })
+} catch (error) {
     startButton.disabled = false
-})
+}
 
 State.scene.clearColor = new Color4(2 / 255, 204 / 255, 254 / 255)
 
