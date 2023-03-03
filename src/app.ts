@@ -55,32 +55,15 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
     const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
 
     const { ball, endPos } = levelGenerator.createLevel()
-    let arrow = new Arrow("direction", ball.mesh.position)
 
-    let throwForce = 500
+    let checkpoint = ball.mesh.position
+    let ballCenter: Vector3 = checkpoint
+    let arrowPresent = false
+    const velocityMargin = 0.1
 
-    State.scene.onKeyboardObservable.add(() => {
-        const position = ball.mesh.getAbsolutePosition()
-        if (State.keys["w"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, 0, throwForce), position)
-        }
-        if (State.keys["s"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(0, 0, -throwForce), position)
-        }
-        if (State.keys["a"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(-throwForce, 0, 0), position)
-        }
-        if (State.keys["d"]) {
-            ball.mesh.physicsImpostor.applyImpulse(new Vector3(throwForce, 0, 0), position)
-        }
-    })
-
-    const startBallPos = ball.mesh.position
-    let ballCenter: Vector3 = startBallPos
     function ballLogic() {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
         State.camera.target = ballCenter
-
 
         if (ballCenter.y <= -3) {
             if (ballCenter.x < endPos.x + 2 &&
@@ -91,14 +74,38 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
                 ball.mesh.dispose()
                 messageHeading.style.visibility = "visible"
                 messageHeading.classList.add("pulse")
+                return
             }
             else {
-                ball.mesh.position = startBallPos
+                ball.mesh.position = checkpoint
+
                 ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
             }
         }
+
+        if (arrowPresent == false) {
+            if (
+                Vector3.Distance(
+                    ball.mesh.physicsImpostor.getLinearVelocity(),
+                    Vector3.Zero()
+                ) <= velocityMargin &&
+
+                Vector3.Distance(
+                    ball.mesh.physicsImpostor.getAngularVelocity(),
+                    Vector3.Zero()
+                ) <= velocityMargin
+            ) {
+                checkpoint = ball.mesh.position
+                new Arrow("direction", ball.mesh.position, (direction) => {
+                    ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
+                    arrowPresent = false
+                }, 150)
+                arrowPresent = true
+            }
+        }
     }
+
     ball.mesh.registerBeforeRender(ballLogic)
 
     /*
