@@ -222,7 +222,7 @@ startButton.onclick = () => {
     State.camera.beta = Math.PI / 4
     State.camera.alpha = -Math.PI / 4
     State.scene.unregisterBeforeRender(followFunc)
-    light.intensity = 1
+    light.intensity = 1.3
 
     const tilesNumber = parseInt(window.localStorage.getItem("tilesNumber"))
     const wigglines = tilesNumber / 100 * parseInt(window.localStorage.getItem("wiggliness"))

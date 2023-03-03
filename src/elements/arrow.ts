@@ -1,10 +1,8 @@
-import { Color3, StandardMaterial, Vector3 } from "@babylonjs/core";
-import { Mesh, MeshBuilder } from "@babylonjs/core";
-import { Axis } from "babylonjs";
-import { textChangeRangeIsUnchanged } from "typescript";
-import BaseElement from "../core/elements/base";
-import State from "../core/state";
-import Utils from "../core/utils";
+import { Color3, StandardMaterial, Vector3 } from "@babylonjs/core"
+import { MeshBuilder } from "@babylonjs/core"
+import BaseElement from "../core/elements/base"
+import State from "../core/state"
+import Utils from "../core/utils"
 
 export default class Arrow extends BaseElement {
     Pivot: Vector3
@@ -15,7 +13,7 @@ export default class Arrow extends BaseElement {
         this.Pivot = pivotPosition
         this.BoundedSpin = this.spin.bind(this)
 
-        this.mesh = MeshBuilder.CreatePolyhedron(`arrow`, {
+        this.mesh = MeshBuilder.CreatePolyhedron(name, {
             sizeX: 5,
             sizeY: 2,
             sizeZ: 3,
@@ -37,7 +35,7 @@ export default class Arrow extends BaseElement {
             Arrow.material.diffuseColor = Color3.Yellow()
             return Arrow.material
         })
-        
+
         this.mesh.translate(Vector3.Left(), 10)
         State.scene.registerBeforeRender(this.BoundedSpin)
     }
