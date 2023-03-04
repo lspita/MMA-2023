@@ -66,7 +66,7 @@ export const Barriers: Obstacle = {
     }
 }
 
-export const Pendolum: Obstacle = {
+export const Wallterfall: Obstacle = {
     curve: false,
     builder: (name: string, tile: Tile) => {
         let step = tile.wallSize * 2
