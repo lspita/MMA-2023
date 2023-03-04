@@ -1,4 +1,4 @@
-import { MeshBuilder, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
+import { Mesh, MeshBuilder, PhysicsImpostor, PhysicsImpostorParameters, StandardMaterial, Texture, Vector3 } from "@babylonjs/core"
 import BaseElement from "../elements/base"
 import Utils from "../utils"
 
@@ -35,6 +35,8 @@ export default class Tile extends BaseElement {
     hasObstacle: boolean = false
     public groundSize: number
     public wallSize: number
+    ground: Mesh
+    impostorParmas: PhysicsImpostorParameters = { mass: 0, friction: 0.5, restitution: 0.5 }
 
 
     constructor(name: string, size = 10) {
@@ -43,9 +45,13 @@ export default class Tile extends BaseElement {
         this.groundSize = this.size - 3
         this.wallSize = this.size - this.groundSize
 
-        this.mesh = MeshBuilder.CreateBox(name, { width: this.groundSize, depth: this.groundSize, height: this.groundSize - this.wallSize })
+        this.mesh = new Mesh(name)
+        this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.NoImpostor, this.impostorParmas)
+        this.ground = MeshBuilder.CreateBox(name + "ground", { width: this.groundSize, depth: this.groundSize, height: this.groundSize - this.wallSize })
+        this.ground.physicsImpostor = new PhysicsImpostor(this.ground, PhysicsImpostor.BoxImpostor, this.impostorParmas)
+        this.ground.parent = this.mesh
 
-        this.mesh.material = Utils.createMaterial(Tile.material, () => {
+        this.ground.material = Utils.createMaterial(Tile.material, () => {
             Tile.material = new StandardMaterial("groundMat")
             let groundTexture = new Texture(require("/public/assets/textures/tilefloor.png"))
             groundTexture.uScale = 2
@@ -86,8 +92,8 @@ export default class Tile extends BaseElement {
         wall.position.x = Math.cos(angle) * this.size / 2
         wall.position.z = Math.sin(angle) * this.size / 2
         wall.material = Tile.wallMat
-
-        this.mesh.addChild(wall)
+        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, this.impostorParmas)
+        wall.parent = this.mesh
 
         let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
         this.createWallAngle(direction, nextDir, angle + (Math.PI / 4))
@@ -108,7 +114,9 @@ export default class Tile extends BaseElement {
         wallAngle.position.x = Math.round(coordinates.x) * this.size / 2
         wallAngle.position.z = Math.round(coordinates.y) * this.size / 2
         wallAngle.material = Tile.wallMat
-        this.mesh.addChild(wallAngle)
+
+        wallAngle.physicsImpostor = new PhysicsImpostor(wallAngle, PhysicsImpostor.NoImpostor, this.impostorParmas)
+        wallAngle.parent = this.mesh
 
         let diagonalSize = this.wallSize * 2.5
         let wallDiagonal = MeshBuilder.CreatePolyhedron(`${dir1}${dir2}DiagonalAngle`, {
@@ -130,7 +138,10 @@ export default class Tile extends BaseElement {
         })
         wallDiagonal.material = Tile.wallMat
         wallDiagonal.rotation.y = -edgeAngle
-        wallAngle.addChild(wallDiagonal)
+
+        wallDiagonal.physicsImpostor = new PhysicsImpostor(wallDiagonal, PhysicsImpostor.MeshImpostor, this.impostorParmas)
+        wallDiagonal.parent = wallAngle
+
         wallDiagonal.position = new Vector3(-coordinates.x * diagonalSize, 0, -coordinates.y * diagonalSize)
     }
 }

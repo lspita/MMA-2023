@@ -16,7 +16,7 @@ export default class ThrowIndicator extends BaseElement {
     maxForce: number
     onThrow: (direction: Vector3) => void
 
-    constructor(name: string, mesh: Mesh, onThrow: (direction: Vector3) => void, maxForce = 10) {
+    constructor(name: string, mesh: Mesh, onMeshesLoaded: () => void, onThrow: (direction: Vector3) => void, maxForce = 10) {
         super()
         this.pivot = mesh.getAbsolutePosition()
         this.maxForce = maxForce
@@ -62,6 +62,7 @@ export default class ThrowIndicator extends BaseElement {
                 this.pivot.y - 1.25,
                 this.pivot.z + 5
             )
+            onMeshesLoaded()
             this.mesh.registerBeforeRender(this.currentFunction)
         })
     }
@@ -84,7 +85,7 @@ export default class ThrowIndicator extends BaseElement {
 
     scale() {
         if (!this.throwConfirmed) {
-            this.force = Math.abs(Math.sin(State.time * 2) * 10)
+            this.force = 20 * Math.abs((State.time / 2) - Math.floor((State.time / 2) + 1 / 2)) // triangular pulse
             this.mesh.translate(Vector3.Forward(), this.force - this.lastValue)
             this.golfclubPivot.rotate(Vector3.Right(), (this.force - this.lastValue) / 4)
 

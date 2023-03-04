@@ -13,7 +13,7 @@ export const Wheel: Obstacle = {
     curve: true,
     builder: (name: string, tile: Tile) => {
         let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
-        pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.CylinderImpostor, { mass: 0 })
+        pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, { mass: 0 })
         pivot.position.y = 0
 
         let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
@@ -72,17 +72,13 @@ export const ClosingWalls: Obstacle = {
     curve: false,
     builder: (name: string, tile: Tile) => {
         const pivot = new Mesh(name)
-        const boxSize = tile.groundSize / 5
 
-        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 2 })
-        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 2 })
+        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 1 })
+        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 1 })
         box2.rotation.y = Math.PI
 
-        box1.position = new Vector3(0, 1, (tile.groundSize - (tile.groundSize / 2) + 2) / 2)
-        box2.position = new Vector3(0, 1, -(tile.groundSize - (tile.groundSize / 2) + 2) / 2)
-
-        box1.scaling.y = box2.scaling.y = 1.40
-        //box1.scaling.y = 1.40
+        box1.position = new Vector3(0, tile.wallSize / 2, (tile.groundSize - (tile.groundSize / 2) + 1) / 2)
+        box2.position = new Vector3(0, tile.wallSize / 2, -(tile.groundSize - (tile.groundSize / 2) + 1) / 2)
 
         box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
         box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
@@ -93,17 +89,18 @@ export const ClosingWalls: Obstacle = {
         pivot.addChild(box2)
 
         State.scene.registerBeforeRender(() => {
-            let val = (Math.sin(State.time) * .7)
-            val = Math.abs(val) + .2
-            // box1.position.z = val * tile.groundSize / 2 - val * tile.groundSize / 4
-            //let val = (Math.sin(State.time))
-            box1.scaling.z = val
+            let scaleFactor = (Math.sin(State.time) * .7)
+            scaleFactor = Math.abs(scaleFactor) + .2
+            box1.scaling.z = scaleFactor
+            box2.scaling.z = scaleFactor
 
-            let mario = (Math.abs(val * tile.groundSize / 2 - val * tile.groundSize / 4) - tile.groundSize / 2) - tile.groundSize / 50
-            box1.position.z = mario
+            box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
+            box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
 
-            box2.scaling.z = val
-            box2.position.z = - mario
+            let positionZ = (Math.abs(scaleFactor * tile.groundSize / 2 - scaleFactor * tile.groundSize / 4) - tile.groundSize / 2) - tile.groundSize / 50
+
+            box1.position.z = positionZ
+            box2.position.z = - positionZ
         })
 
         return pivot

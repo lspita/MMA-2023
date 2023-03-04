@@ -7,7 +7,7 @@ import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 import Tree from "./elements/tree"
 import { Color4 } from "@babylonjs/core/Maths/math.color"
-import ThrowIndicator from "./elements/throwindicator"
+import ThrowIndicator from "./elements/throwIndicator"
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 const messageHeading = document.getElementById("message") as HTMLHeadElement
@@ -49,7 +49,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
         State.camera.alpha += cameraSpeedX * 2 * State.deltaTime
     })
 
-    const gravityVector = new Vector3(0, -9.81 * 5, 0)
+    const gravityVector = new Vector3(0, -9.81, 0).scale(3)
     State.scene.enablePhysics(gravityVector, new CannonJSPlugin(true, 10, CANNON))
 
     const levelGenerator = new LevelGenerator(tilesNumber, wigglines, tileSize)
@@ -58,14 +58,14 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
 
     let checkpoint = ball.mesh.position
     let ballCenter: Vector3 = checkpoint
-    const velocityMargin = 0.05
+    const velocityMargin = 0.1
     const holeRange = (holeDiameter / 2) + 1
     let throwIndicator: ThrowIndicator = null
     let throwMeshSpawned = false
 
     function ballLogic() {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
-        State.camera.target = ballCenter
+        State.camera.lockedTarget = ballCenter
 
         if (ballCenter.y <= -3) {
             if (ballCenter.x < endPos.x + holeRange &&
@@ -99,10 +99,9 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
         ) {
             if (throwIndicator == null) {
                 checkpoint = ball.mesh.position
-                throwIndicator = new ThrowIndicator("direction", ball.mesh, (direction) => {
+                throwIndicator = new ThrowIndicator("direction", ball.mesh, () => throwMeshSpawned = true, (direction) => {
                     ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
-                    throwMeshSpawned = true
-                }, 150)
+                }, 8)
             }
         }
         else if (throwMeshSpawned && throwIndicator != null) {
