@@ -7,31 +7,31 @@ export type Obstacle = {
     builder: (name: string, tile: Tile) => Mesh
 }
 
-export const Wheel: Obstacle = {
-    curve: true,
-    builder: (name: string, tile: Tile) => {
-        let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
-        pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
-        pivot.position.y = 0
+// export const Wheel: Obstacle = {
+//     curve: true,
+//     builder: (name: string, tile: Tile) => {
+//         let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
+//         pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
+//         pivot.position.y = 0
 
-        let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
-        mid.material = Tile.wallMat
-        mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, tile.impostorParams)
-        mid.parent = pivot
-        mid.position = new Vector3(0, -tile.wallSize * 0.15, 0)
+//         let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
+//         mid.material = Tile.wallMat
+//         mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, tile.impostorParams)
+//         mid.parent = pivot
+//         mid.position = new Vector3(0, -tile.wallSize * 0.15, 0)
 
-        let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 1.4, width: tile.groundSize * 0.9, depth: tile.groundSize * 0.04 })
-        wall.material = Tile.wallMat
-        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
-        wall.parent = mid
-        wall.position = new Vector3(0, -tile.wallSize * 0.15, 0)
-        State.scene.registerBeforeRender(() => {
-            wall.rotate(Vector3.Up(), State.deltaTime)
-        })
+//         let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 1.4, width: tile.groundSize * 0.9, depth: tile.groundSize * 0.04 })
+//         wall.material = Tile.wallMat
+//         wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+//         wall.parent = mid
+//         wall.position = new Vector3(0, -tile.wallSize * 0.15, 0)
+//         State.scene.registerBeforeRender(() => {
+//             wall.rotate(Vector3.Up(), State.deltaTime)
+//         })
 
-        return pivot
-    }
-}
+//         return pivot
+//     }
+// }
 
 export const Barriers: Obstacle = {
     curve: true,
@@ -69,24 +69,63 @@ export const Barriers: Obstacle = {
 export const Wallterfall: Obstacle = {
     curve: false,
     builder: (name: string, tile: Tile) => {
-        let step = tile.wallSize * 2
+        let step = tile.wallSize / 2
+        console.log(step)
         const pivot = new Mesh(name)
-        pivot.position.y = tile.groundSize
-        for (let i = -(tile.groundSize / 2) + (step / 2), n = (tile.groundSize / 2) - (step / 2); i <= n; i += step) {
-            const wall = MeshBuilder.CreateBox(name + "Wall" + i, {
-                height: pivot.position.y / 2,
-                width: step / 2,
+        pivot.position.y = tile.groundSize / 4
+
+        let start = -(tile.groundSize / 2) + (step / 2)
+        let end = (tile.groundSize / 2) - (step / 2)
+        for (let i = start; i <= end; i += step) {
+            let initialPos = -pivot.position.y / 6
+
+            const wall1 = MeshBuilder.CreateBox(name + "Wall" + i, {
+                height: pivot.position.y * 2 / 3,
+                width: step * 2,
                 depth: step
             })
-            wall.material = Tile.wallMat
-            wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
-            wall.parent = pivot
-            let initialPos = -pivot.position.y / 4
-            wall.position.y = initialPos
-            wall.position.z = i
-            State.scene.registerBeforeRender(() => {
-                wall.position.y = (Math.abs(Math.sin(State.time + i)) * initialPos * 2) + initialPos
+            wall1.material = Tile.wallMat
+            wall1.physicsImpostor = new PhysicsImpostor(wall1, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+            wall1.parent = pivot
+            wall1.position = new Vector3(
+                tile.groundSize / 8,
+                initialPos,
+                i
+            )
+
+            const wall2 = MeshBuilder.CreateBox(name + "Wall" + i, {
+                height: pivot.position.y * 2 / 3,
+                width: step * 2,
+                depth: step
             })
+            wall2.material = Tile.wallMat
+            wall2.physicsImpostor = new PhysicsImpostor(wall2, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+            wall2.parent = pivot
+            wall2.position = new Vector3(
+                -tile.groundSize / 8,
+                initialPos,
+                i
+            )
+
+            State.scene.registerBeforeRender(() => {
+                wall1.position.y = (Math.sin(State.time + (i * Math.PI / (end - start))) * initialPos * 2) + (initialPos * 2)
+                wall2.position.y = (Math.cos(State.time + (i * Math.PI / (end - start)) + Math.PI / 2) * initialPos * 2) + (initialPos * 2)
+            })
+        }
+
+        for (let i = 0; i < 4; i++) {
+            const pole = MeshBuilder.CreateBox(name + "Pole" + i, {
+                height: pivot.position.y * 5 / 3,
+                width: step * 2.5,
+                depth: tile.wallSize * 0.9
+            })
+            pole.physicsImpostor = new PhysicsImpostor(pole, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+            pole.parent = pivot
+            pole.position = new Vector3(
+                tile.groundSize / 8 * (i % 2 == 0 ? 1 : -1),
+                -pivot.position.y / 2,
+                (start - tile.wallSize * 0.9 + (step / 2)) * (i < 2 ? 1 : -1)
+            )
         }
 
         return pivot
