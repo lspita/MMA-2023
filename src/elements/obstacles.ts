@@ -11,18 +11,18 @@ export const Wheel: Obstacle = {
     curve: true,
     builder: (name: string, tile: Tile) => {
         let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
-        pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, { mass: 0 })
+        pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
         pivot.position.y = 0
 
         let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
         mid.material = Tile.wallMat
-        mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, { mass: 0 })
+        mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, tile.impostorParams)
         mid.parent = pivot
         mid.position = new Vector3(0, -tile.wallSize * 0.15, 0)
 
         let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 1.4, width: tile.groundSize * 0.9, depth: tile.groundSize * 0.04 })
         wall.material = Tile.wallMat
-        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, { mass: 0 })
+        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
         wall.parent = mid
         wall.position = new Vector3(0, -tile.wallSize * 0.15, 0)
         State.scene.registerBeforeRender(() => {
@@ -42,8 +42,8 @@ export const Barriers: Obstacle = {
 
         let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize * 1.5, width: boxSize, depth: boxSize })
         let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize * 1.5, width: boxSize, depth: boxSize })
-        box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
-        box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
+        box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+        box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, tile.impostorParams)
         box1.parent = box2.parent = pivot
         box1.position.y = box2.position.y = 0
         box1.material = box2.material = Tile.wallMat
@@ -79,7 +79,7 @@ export const Wallterfall: Obstacle = {
                 depth: step
             })
             wall.material = Tile.wallMat
-            wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, { mass: 0 })
+            wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
             wall.parent = pivot
             let initialPos = -pivot.position.y / 4
             wall.position.y = initialPos
@@ -88,7 +88,7 @@ export const Wallterfall: Obstacle = {
                 wall.position.y = (Math.abs(Math.sin(State.time + i)) * initialPos * 2) + initialPos
             })
         }
-        
+
         return pivot
     }
 }

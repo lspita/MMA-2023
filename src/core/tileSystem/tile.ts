@@ -36,7 +36,7 @@ export default class Tile extends BaseElement {
     public groundSize: number
     public wallSize: number
     ground: Mesh
-    impostorParmas: PhysicsImpostorParameters = { mass: 0, friction: 0.5, restitution: 0.5 }
+    impostorParams: PhysicsImpostorParameters = { mass: 0, friction: 0.5, restitution: 0.5 }
 
 
     constructor(name: string, size = 10) {
@@ -46,9 +46,9 @@ export default class Tile extends BaseElement {
         this.wallSize = this.size - this.groundSize
 
         this.mesh = new Mesh(name)
-        this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.NoImpostor, this.impostorParmas)
+        this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.NoImpostor, this.impostorParams)
         this.ground = MeshBuilder.CreateBox(name + "ground", { width: this.groundSize, depth: this.groundSize, height: this.groundSize - this.wallSize })
-        this.ground.physicsImpostor = new PhysicsImpostor(this.ground, PhysicsImpostor.BoxImpostor, this.impostorParmas)
+        this.ground.physicsImpostor = new PhysicsImpostor(this.ground, PhysicsImpostor.BoxImpostor, this.impostorParams)
         this.ground.parent = this.mesh
 
         this.ground.material = Utils.createMaterial(Tile.material, () => {
@@ -92,7 +92,7 @@ export default class Tile extends BaseElement {
         wall.position.x = Math.cos(angle) * this.size / 2
         wall.position.z = Math.sin(angle) * this.size / 2
         wall.material = Tile.wallMat
-        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, this.impostorParmas)
+        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, this.impostorParams)
         wall.parent = this.mesh
 
         let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
@@ -115,7 +115,7 @@ export default class Tile extends BaseElement {
         wallAngle.position.z = Math.round(coordinates.y) * this.size / 2
         wallAngle.material = Tile.wallMat
 
-        wallAngle.physicsImpostor = new PhysicsImpostor(wallAngle, PhysicsImpostor.NoImpostor, this.impostorParmas)
+        wallAngle.physicsImpostor = new PhysicsImpostor(wallAngle, PhysicsImpostor.NoImpostor, this.impostorParams)
         wallAngle.parent = this.mesh
 
         let diagonalSize = this.wallSize * 2.5
@@ -139,7 +139,7 @@ export default class Tile extends BaseElement {
         wallDiagonal.material = Tile.wallMat
         wallDiagonal.rotation.y = -edgeAngle
 
-        wallDiagonal.physicsImpostor = new PhysicsImpostor(wallDiagonal, PhysicsImpostor.MeshImpostor, this.impostorParmas)
+        wallDiagonal.physicsImpostor = new PhysicsImpostor(wallDiagonal, PhysicsImpostor.MeshImpostor, this.impostorParams)
         wallDiagonal.parent = wallAngle
 
         wallDiagonal.position = new Vector3(-coordinates.x * diagonalSize, 0, -coordinates.y * diagonalSize)

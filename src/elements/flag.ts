@@ -107,7 +107,7 @@ export default class Flag extends BaseElement {
         holemesh.dispose()
         let name = tile.ground.name
         let pos = tile.ground.position
-        let impostorParams = tile.impostorParmas
+        let impostorParams = tile.impostorParams
         tile.ground.dispose()
         tile.ground = subtraction.toMesh(name, tile.ground.material)
         tile.ground.physicsImpostor = new PhysicsImpostor(tile.ground, PhysicsImpostor.MeshImpostor, impostorParams)
