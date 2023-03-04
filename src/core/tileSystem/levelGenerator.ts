@@ -1,4 +1,4 @@
-import { Vector3, Mesh } from "@babylonjs/core"
+import { Vector3 } from "@babylonjs/core"
 import PathGenerator from "./pathGenerator"
 import Tile, { Direction, dirInfo } from "./tile"
 import Utils from "../utils"

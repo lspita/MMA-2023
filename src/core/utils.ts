@@ -1,4 +1,4 @@
-import { Mesh, PhysicsImpostor, StandardMaterial } from "@babylonjs/core"
+import { StandardMaterial } from "@babylonjs/core"
 
 export default class Utils {
     static random<T>(array: T[]): T {
