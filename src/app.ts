@@ -58,10 +58,11 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
 
     let checkpoint = ball.mesh.position
     let ballCenter: Vector3 = checkpoint
-    let arrowPresent = false
-    const velocityMargin = 0.1
-
+    const velocityMargin = 0.05
     const holeRange = (holeDiameter / 2) + 1
+    let throwIndicator: ThrowIndicator = null
+    let throwMeshSpawned = false
+
     function ballLogic() {
         ballCenter = ball.mesh.physicsImpostor.getObjectCenter()
         State.camera.target = ballCenter
@@ -79,32 +80,37 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
             }
             else {
                 ball.mesh.position = checkpoint
-
                 ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
             }
         }
+        let linearVelocity = Vector3.Distance(
+            ball.mesh.physicsImpostor.getLinearVelocity(),
+            Vector3.Zero()
+        )
+        let angularVelocity = Vector3.Distance(
+            ball.mesh.physicsImpostor.getAngularVelocity(),
+            Vector3.Zero()
+        )
 
-        if (arrowPresent == false) {
-            if (
-                Vector3.Distance(
-                    ball.mesh.physicsImpostor.getLinearVelocity(),
-                    Vector3.Zero()
-                ) <= velocityMargin &&
-
-                Vector3.Distance(
-                    ball.mesh.physicsImpostor.getAngularVelocity(),
-                    Vector3.Zero()
-                ) <= velocityMargin
-            ) {
+        if (
+            linearVelocity <= velocityMargin &&
+            angularVelocity <= velocityMargin
+        ) {
+            if (throwIndicator == null) {
                 checkpoint = ball.mesh.position
-                new ThrowIndicator("direction", ball.mesh, (direction) => {
+                throwIndicator = new ThrowIndicator("direction", ball.mesh, (direction) => {
                     ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
-                    arrowPresent = false
+                    throwMeshSpawned = true
                 }, 150)
-                arrowPresent = true
             }
         }
+        else if (throwMeshSpawned && throwIndicator != null) {
+            throwIndicator.destroy()
+            throwIndicator = null
+            throwMeshSpawned = false
+        }
+
     }
 
     ball.mesh.registerBeforeRender(ballLogic)

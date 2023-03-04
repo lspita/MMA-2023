@@ -97,13 +97,16 @@ export default class ThrowIndicator extends BaseElement {
         if (this.throwConfirmed) {
             this.golfclubPivot.rotate(Vector3.Right(), -0.1)
             if (this.golfclubPivot.absoluteRotationQuaternion.toEulerAngles().x <= 0) {
-                this.mesh.unregisterBeforeRender(this.currentFunction)
-                this.mesh.dispose()
-                this.golfclubPivot.dispose()
-                this.throwConfirmed = false
                 ThrowIndicator.golfhit.play()
                 this.onThrow(this.direction.scale(this.force * this.maxForce))
             }
         }
+    }
+
+    destroy() {
+        this.mesh.unregisterBeforeRender(this.currentFunction)
+        this.mesh.dispose()
+        this.golfclubPivot.dispose()
+        this.throwConfirmed = false
     }
 }
