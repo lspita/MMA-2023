@@ -1,4 +1,4 @@
-import { Color3, CSG, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core"
+import { Color3, CSG, Mesh, MeshBuilder, PhysicsImpostor, StandardMaterial, Vector3 } from "@babylonjs/core"
 import BaseElement from "../core/elements/base"
 import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
@@ -101,14 +101,19 @@ export default class Flag extends BaseElement {
         holemesh.position = endPos
         holemesh.setEnabled(false)
 
-        const tileCSG = CSG.FromMesh(tile.mesh)
+        const groundCSG = CSG.FromMesh(tile.ground)
         const holeCSG = CSG.FromMesh(holemesh)
-        const subtraction = tileCSG.subtract(holeCSG)
+        const subtraction = groundCSG.subtract(holeCSG)
         holemesh.dispose()
-        const tileSubtract = subtraction.toMesh(tile.mesh.name, tile.mesh.material)
-        const exMesh = tile.mesh
-        tile.mesh = Utils.merge(tileSubtract, ...exMesh.getChildMeshes() as Mesh[])
-        exMesh.dispose()
+        let name = tile.ground.name
+        let pos = tile.ground.position
+        let impostorParams = tile.impostorParmas
+        tile.ground.dispose()
+        tile.ground = subtraction.toMesh(name, tile.ground.material)
+        tile.ground.physicsImpostor = new PhysicsImpostor(tile.ground, PhysicsImpostor.MeshImpostor, impostorParams)
+        tile.ground.parent = tile.mesh
+        tile.ground.position = pos
+
         return endPos
     }
 

@@ -1,4 +1,4 @@
-import { Vector3, Mesh } from "@babylonjs/core"
+import { Vector3 } from "@babylonjs/core"
 import PathGenerator from "./pathGenerator"
 import Tile, { Direction, dirInfo } from "./tile"
 import Utils from "../utils"
@@ -38,6 +38,7 @@ export default class LevelGenerator {
                     lastTile.mesh.position.y,
                     lastTile.mesh.position.z + (step.y * tile.groundSize)
                 )
+
                 const stepString = JSON.stringify(step)
                 for (const [key, value] of Object.entries(dirInfo)) {
                     if (JSON.stringify(value.coordinates) == stepString) {
@@ -67,7 +68,7 @@ export default class LevelGenerator {
             if (i == rawTiles.length - 1) {
                 flag = new Flag("endFlag", rawTile)
                 ball = new Ball("golfball")
-                ball.mesh.position.y = 3
+                ball.mesh.position.y = rawTile.wallSize
                 let box = flag.mesh.getBoundingInfo()
                 flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
                 endPos = flag.createHole(rawTile)
@@ -75,7 +76,6 @@ export default class LevelGenerator {
                 flag.follow(ball.mesh)
             }
             else {
-                rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
                 if (i >= 1 && i < this.radius - 1 && (Math.round(Math.random()) == 0 || i - lastObstacle > 2)) {
                     lastObstacle = i
                     let obstacle: Obstacles.Obstacle

@@ -16,7 +16,7 @@ export default class ThrowIndicator extends BaseElement {
     maxForce: number
     onThrow: (direction: Vector3) => void
 
-    constructor(name: string, mesh: Mesh, onThrow: (direction: Vector3) => void, maxForce = 10) {
+    constructor(name: string, mesh: Mesh, onMeshesLoaded: () => void, onThrow: (direction: Vector3) => void, maxForce = 10) {
         super()
         this.pivot = mesh.getAbsolutePosition()
         this.maxForce = maxForce
@@ -49,11 +49,13 @@ export default class ThrowIndicator extends BaseElement {
 
         new GolfClub("golfClub", (element) => {
             element.mesh.scaling.scaleInPlace(2)
+            const meshBoxInfo = mesh.getBoundingInfo()
+            const size = meshBoxInfo.maximum.z - meshBoxInfo.minimum.z
             this.golfclubPivot = new TransformNode(element.mesh.name + "pivot")
             this.golfclubPivot.position = new Vector3(
                 this.pivot.x,
                 this.pivot.y + 16,
-                this.pivot.z - 3
+                this.pivot.z - (size * 1.1)
             )
             element.mesh.parent = this.golfclubPivot
             element.mesh.position.y -= 16
@@ -62,6 +64,7 @@ export default class ThrowIndicator extends BaseElement {
                 this.pivot.y - 1.25,
                 this.pivot.z + 5
             )
+            onMeshesLoaded()
             this.mesh.registerBeforeRender(this.currentFunction)
         })
     }
@@ -84,7 +87,7 @@ export default class ThrowIndicator extends BaseElement {
 
     scale() {
         if (!this.throwConfirmed) {
-            this.force = Math.abs(Math.sin(State.time * 2) * 10)
+            this.force = 20 * Math.abs((State.time / 2) - Math.floor((State.time / 2) + 1 / 2)) // triangular pulse
             this.mesh.translate(Vector3.Forward(), this.force - this.lastValue)
             this.golfclubPivot.rotate(Vector3.Right(), (this.force - this.lastValue) / 4)
 
@@ -95,15 +98,18 @@ export default class ThrowIndicator extends BaseElement {
             this.throwConfirmed = true
         }
         if (this.throwConfirmed) {
-            this.golfclubPivot.rotate(Vector3.Right(), -0.05)
+            this.golfclubPivot.rotate(Vector3.Right(), -0.1)
             if (this.golfclubPivot.absoluteRotationQuaternion.toEulerAngles().x <= 0) {
-                this.mesh.unregisterBeforeRender(this.currentFunction)
-                this.mesh.dispose()
-                this.golfclubPivot.dispose()
-                this.throwConfirmed = false
                 ThrowIndicator.golfhit.play()
                 this.onThrow(this.direction.scale(this.force * this.maxForce))
             }
         }
+    }
+
+    destroy() {
+        this.mesh.unregisterBeforeRender(this.currentFunction)
+        this.mesh.dispose()
+        this.golfclubPivot.dispose()
+        this.throwConfirmed = false
     }
 }
