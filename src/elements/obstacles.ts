@@ -88,8 +88,7 @@ export const Wallterfall: Obstacle = {
                 wall.position.y = (Math.abs(Math.sin(State.time + i)) * initialPos * 2) + initialPos
             })
         }
-
-
+        
         return pivot
     }
 }
