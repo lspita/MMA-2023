@@ -49,11 +49,13 @@ export default class ThrowIndicator extends BaseElement {
 
         new GolfClub("golfClub", (element) => {
             element.mesh.scaling.scaleInPlace(2)
+            const meshBoxInfo = mesh.getBoundingInfo()
+            const size = meshBoxInfo.maximum.z - meshBoxInfo.minimum.z
             this.golfclubPivot = new TransformNode(element.mesh.name + "pivot")
             this.golfclubPivot.position = new Vector3(
                 this.pivot.x,
                 this.pivot.y + 16,
-                this.pivot.z - 3
+                this.pivot.z - (size * 1.1)
             )
             element.mesh.parent = this.golfclubPivot
             element.mesh.position.y -= 16

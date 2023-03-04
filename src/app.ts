@@ -14,6 +14,14 @@ const messageHeading = document.getElementById("message") as HTMLHeadElement
 const menu = document.getElementById("menu") as HTMLDivElement
 
 function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
+    // Get delta time and time
+    let lastTime = 0
+    State.scene.registerBeforeRender(() => {
+        State.time = performance.now() * 0.001
+        State.deltaTime = State.time - lastTime
+        lastTime = State.time
+    })
+
     State.scene.meshes.forEach(mesh => mesh.dispose())
 
     State.scene.onKeyboardObservable.add((kbInfo) => {
@@ -58,7 +66,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
 
     let checkpoint = ball.mesh.position
     let ballCenter: Vector3 = checkpoint
-    const velocityMargin = 0.1
+    const velocityMargin = 0.5
     const holeRange = (holeDiameter / 2) + 1
     let throwIndicator: ThrowIndicator = null
     let throwMeshSpawned = false
@@ -81,17 +89,12 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
             else {
                 ball.mesh.position = checkpoint
                 ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
+                ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
             }
         }
-        let linearVelocity = Vector3.Distance(
-            ball.mesh.physicsImpostor.getLinearVelocity(),
-            Vector3.Zero()
-        )
-        let angularVelocity = Vector3.Distance(
-            ball.mesh.physicsImpostor.getAngularVelocity(),
-            Vector3.Zero()
-        )
+        let linearVelocity = ball.mesh.physicsImpostor.getLinearVelocity().length()
+        let angularVelocity = ball.mesh.physicsImpostor.getAngularVelocity().length()
 
         if (
             linearVelocity <= velocityMargin &&
@@ -99,6 +102,8 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
         ) {
             if (throwIndicator == null) {
                 checkpoint = ball.mesh.position
+                ball.mesh.physicsImpostor.setLinearVelocity(Vector3.Zero())
+                ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
                 throwIndicator = new ThrowIndicator("direction", ball.mesh, () => throwMeshSpawned = true, (direction) => {
                     ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
                 }, 8)
@@ -174,8 +179,8 @@ State.camera = new ArcRotateCamera(
     State.scene, true
 )
 
-State.camera.upperRadiusLimit = State.camera.radius
-State.camera.lowerRadiusLimit = State.camera.radius / 2
+// State.camera.upperRadiusLimit = State.camera.radius
+// State.camera.lowerRadiusLimit = State.camera.radius / 2
 
 const light = new DirectionalLight("light", new Vector3(0, 0, 1), State.scene)
 light.parent = State.camera
@@ -192,14 +197,6 @@ window.addEventListener("keydown", (ev) => {
             State.scene.debugLayer.show()
         }
     }
-})
-
-// Get delta time and time
-let lastTime = 0
-State.scene.registerBeforeRender(() => {
-    State.time = performance.now() * 0.001
-    State.deltaTime = State.time - lastTime
-    lastTime = State.time
 })
 
 let followFunc: () => void

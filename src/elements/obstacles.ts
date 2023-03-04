@@ -1,4 +1,4 @@
-import { MeshBuilder, Mesh, Vector3, PhysicsImpostor, Tools } from "@babylonjs/core"
+import { MeshBuilder, Mesh, Vector3, PhysicsImpostor, Tools, CSG } from "@babylonjs/core"
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial"
 import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
@@ -68,40 +68,29 @@ export const Barriers: Obstacle = {
     }
 }
 
-export const ClosingWalls: Obstacle = {
+export const Pendolum: Obstacle = {
     curve: false,
     builder: (name: string, tile: Tile) => {
+        let step = tile.wallSize * 2
         const pivot = new Mesh(name)
+        pivot.position.y = tile.groundSize
+        for (let i = -(tile.groundSize / 2) + (step / 2), n = (tile.groundSize / 2) - (step / 2); i <= n; i += step) {
+            const wall = MeshBuilder.CreateBox(name + "Wall" + i, {
+                height: pivot.position.y / 2,
+                width: step / 2,
+                depth: step
+            })
+            wall.material = Tile.wallMat
+            wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, { mass: 0 })
+            wall.parent = pivot
+            let initialPos = -pivot.position.y / 4
+            wall.position.y = initialPos
+            wall.position.z = i
+            State.scene.registerBeforeRender(() => {
+                wall.position.y = (Math.abs(Math.sin(State.time + i)) * initialPos * 2) + initialPos
+            })
+        }
 
-        let box1 = MeshBuilder.CreateBox(name + "Box1", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 1 })
-        let box2 = MeshBuilder.CreateBox(name + "Box2", { height: tile.wallSize, width: tile.groundSize, depth: (tile.groundSize / 2) - 1 })
-        box2.rotation.y = Math.PI
-
-        box1.position = new Vector3(0, tile.wallSize / 2, (tile.groundSize - (tile.groundSize / 2) + 1) / 2)
-        box2.position = new Vector3(0, tile.wallSize / 2, -(tile.groundSize - (tile.groundSize / 2) + 1) / 2)
-
-        box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
-        box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
-
-        box1.material = box2.material = Tile.wallMat
-
-        pivot.addChild(box1)
-        pivot.addChild(box2)
-
-        State.scene.registerBeforeRender(() => {
-            let scaleFactor = (Math.sin(State.time) * .7)
-            scaleFactor = Math.abs(scaleFactor) + .2
-            box1.scaling.z = scaleFactor
-            box2.scaling.z = scaleFactor
-
-            box1.physicsImpostor = new PhysicsImpostor(box1, PhysicsImpostor.BoxImpostor, { mass: 0 })
-            box2.physicsImpostor = new PhysicsImpostor(box2, PhysicsImpostor.BoxImpostor, { mass: 0 })
-
-            let positionZ = (Math.abs(scaleFactor * tile.groundSize / 2 - scaleFactor * tile.groundSize / 4) - tile.groundSize / 2) - tile.groundSize / 50
-
-            box1.position.z = positionZ
-            box2.position.z = - positionZ
-        })
 
         return pivot
     }

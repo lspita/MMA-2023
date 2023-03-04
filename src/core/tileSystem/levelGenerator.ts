@@ -72,12 +72,10 @@ export default class LevelGenerator {
                 let box = flag.mesh.getBoundingInfo()
                 flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
                 endPos = flag.createHole(rawTile)
-                // rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
                 flag.mesh.position.y += 10
                 flag.follow(ball.mesh)
             }
             else {
-                // rawTile.mesh = Utils.merge(rawTile.mesh, ...rawTile.mesh.getChildMeshes() as Mesh[])
                 if (i >= 1 && i < this.radius - 1 && (Math.round(Math.random()) == 0 || i - lastObstacle > 2)) {
                     lastObstacle = i
                     let obstacle: Obstacles.Obstacle
