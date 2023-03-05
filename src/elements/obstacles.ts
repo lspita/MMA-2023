@@ -4,11 +4,13 @@ import Tile from "../core/tileSystem/tile"
 
 export type Obstacle = {
     onlyStraightTiles: boolean // Identifies if mesh can stay only on straight tiles
+    id: string // Identifier of the obstacle type
     builder: (name: string, tile: Tile) => Mesh // Contructor
 }
 
 export const Wheel: Obstacle = { // Spinning ground wheel
     onlyStraightTiles: false,
+    id: "wheel",
     builder: (name: string, tile: Tile) => {
         let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
         pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
@@ -35,6 +37,7 @@ export const Wheel: Obstacle = { // Spinning ground wheel
 
 export const Barriers: Obstacle = { // Moving squares on ground
     onlyStraightTiles: false,
+    id: "barriers",
     builder: (name: string, tile: Tile) => {
         const boxSize = tile.groundSize / 5
         const pivot = new Mesh(name)
@@ -68,6 +71,7 @@ export const Barriers: Obstacle = { // Moving squares on ground
 
 export const Wallterfall: Obstacle = { // Walls wave
     onlyStraightTiles: true,
+    id: "wallterfall",
     builder: (name: string, tile: Tile) => {
         let nWalls = 30
         let step = tile.groundSize / nWalls
@@ -134,6 +138,7 @@ export const Wallterfall: Obstacle = { // Walls wave
 
 export const Propeller: Obstacle = { // Tile size propeller
     onlyStraightTiles: true,
+    id: "propeller",
     builder: (name: string, tile: Tile) => {
         const pivot = new Mesh(name)
 

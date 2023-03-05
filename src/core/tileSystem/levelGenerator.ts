@@ -26,7 +26,8 @@ export default class LevelGenerator {
         let flag: Flag
         let ball: Ball = null
         let endPos: Vector3 = null
-        let lastObstacle = 0
+        let lastObstacleIndex = -1
+        let obstaclesIds: string[] = []
 
         for (let i = 0; i < this.radius; i++) { // Foreach step
             const step = path[i]
@@ -53,7 +54,27 @@ export default class LevelGenerator {
                 tile.destroyWall(dirInfo[stepDirection].opposite)
                 lastTile.destroyWall(stepDirection)
             }
+            // Create obstacle in tile
+            let obstacle: Obstacles.Obstacle = null
+            if (i > 1 && (Math.round(Math.random()) == 0 || i - lastObstacleIndex > 2)) {
+                do {
+                    if (stepDirection == lastStepDirection) {
+                        // straight tile
+                        obstacle = Utils.random(LevelGenerator.obstacles)
+                    } else {
+                        obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.onlyStraightTiles == false))
+                    }
+                } while (obstaclesIds[obstaclesIds.length - 1] == obstaclesIds[obstaclesIds.length - 2] && obstacle.id == obstaclesIds[obstaclesIds.length - 1])
 
+                let obstacleMesh = obstacle.builder(`${tile.mesh.name}Obstacle`, lastTile)
+                const coordinates = dirInfo[stepDirection].coordinates
+
+                obstacleMesh.rotation.y += Math.atan2(coordinates.y, coordinates.x)
+                let box = obstacleMesh.getBoundingInfo()
+                obstacleMesh.position = new Vector3(lastTile.mesh.position.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, lastTile.mesh.position.z)
+                lastObstacleIndex = i
+                obstaclesIds.push(obstacle.id)
+            }
             if (i == this.radius - 1) {
                 // Create flag and ball
                 flag = new Flag("endFlag", tile)
@@ -64,25 +85,6 @@ export default class LevelGenerator {
                 endPos = flag.createHole(tile)
                 flag.mesh.position.y += 10
                 flag.follow(ball.mesh)
-            }
-            else {
-                // Create obstacle in tile
-                if (i >= 1 && i < this.radius - 1 && (Math.round(Math.random()) == 0 || i - lastObstacle > 2)) {
-                    lastObstacle = i
-                    let obstacle: Obstacles.Obstacle
-                    if (stepDirection == lastStepDirection) {
-                        // straight tile
-                        obstacle = Utils.random(LevelGenerator.obstacles)
-                    } else {
-                        obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.onlyStraightTiles == false))
-                    }
-                    let obstacleMesh = obstacle.builder(`${tile.mesh.name}Obstacle`, tile)
-                    const coordinates = dirInfo[stepDirection].coordinates
-
-                    obstacleMesh.rotation.y += Math.atan2(coordinates.y, coordinates.x)
-                    let box = obstacleMesh.getBoundingInfo()
-                    obstacleMesh.position = new Vector3(tile.mesh.position.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, tile.mesh.position.z)
-                }
             }
 
             lastTile = tile
