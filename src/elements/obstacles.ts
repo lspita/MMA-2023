@@ -7,31 +7,31 @@ export type Obstacle = {
     builder: (name: string, tile: Tile) => Mesh
 }
 
-// export const Wheel: Obstacle = {
-//     curve: true,
-//     builder: (name: string, tile: Tile) => {
-//         let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
-//         pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
-//         pivot.position.y = 0
+export const Wheel: Obstacle = {
+    curve: true,
+    builder: (name: string, tile: Tile) => {
+        let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
+        pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
+        pivot.position.y = 0
 
-//         let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
-//         mid.material = Tile.wallMat
-//         mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, tile.impostorParams)
-//         mid.parent = pivot
-//         mid.position = new Vector3(0, -tile.wallSize * 0.15, 0)
+        let mid = MeshBuilder.CreateCylinder("center", { height: tile.wallSize * 1.5, diameter: tile.groundSize * 0.05 })
+        mid.material = Tile.wallMat
+        mid.physicsImpostor = new PhysicsImpostor(mid, PhysicsImpostor.CylinderImpostor, tile.impostorParams)
+        mid.parent = pivot
+        mid.position = new Vector3(0, -tile.wallSize * 0.15, 0)
 
-//         let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 1.4, width: tile.groundSize * 0.9, depth: tile.groundSize * 0.04 })
-//         wall.material = Tile.wallMat
-//         wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
-//         wall.parent = mid
-//         wall.position = new Vector3(0, -tile.wallSize * 0.15, 0)
-//         State.scene.registerBeforeRender(() => {
-//             wall.rotate(Vector3.Up(), State.deltaTime)
-//         })
+        let wall = MeshBuilder.CreateBox("wall", { height: tile.wallSize * 1.4, width: tile.groundSize * 0.9, depth: tile.groundSize * 0.04 })
+        wall.material = Tile.wallMat
+        wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+        wall.parent = mid
+        wall.position = new Vector3(0, -tile.wallSize * 0.15, 0)
+        State.scene.registerBeforeRender(() => {
+            wall.rotate(Vector3.Up(), State.deltaTime)
+        })
 
-//         return pivot
-//     }
-// }
+        return pivot
+    }
+}
 
 export const Barriers: Obstacle = {
     curve: true,
