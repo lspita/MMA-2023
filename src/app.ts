@@ -12,8 +12,10 @@ import ThrowIndicator from "./elements/throwIndicator"
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 const messageHeading = document.getElementById("message") as HTMLHeadElement
 const menu = document.getElementById("menu") as HTMLDivElement
+const controls = document.getElementById("controls") as HTMLDivElement
 
 function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
+    controls.style.visibility = "visible"
     // Get delta time and time
     let lastTime = 0
     State.scene.registerBeforeRender(() => {
@@ -106,6 +108,7 @@ function startGame(tilesNumber: number, wigglines: number, tileSize: number) {
                 ball.mesh.physicsImpostor.setAngularVelocity(Vector3.Zero())
                 throwIndicator = new ThrowIndicator("direction", ball.mesh, () => throwMeshSpawned = true, (direction) => {
                     ball.mesh.physicsImpostor.applyImpulse(direction, ballCenter)
+                    controls.style.visibility = "collapse"
                 }, 8)
             }
         }
