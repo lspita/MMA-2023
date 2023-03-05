@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+:root {
+    --fginput: #FF5E5B;
+    --bginput: #FFED66;
+}
+
+html,
+body {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #33334C;
+}
+
+* {
+    font-family: 'Russo One';
+}
+
+canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#hud {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    background-color: transparent;
+}
+
+#hud > * {
+    position: absolute;
+    pointer-events: none;
+}
+
+.center {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#message {
+    font-size: 10rem;
+    letter-spacing: 1rem;
+    transform-origin: center;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 0;
+}
+
+.victory {
+    color: #FFB20D;
+    visibility: collapse;
+}
+
+.title {
+    color: var(--fginput);
+    margin-top: 0;
+}
+
+.pulse {
+    animation: pulse 0.75s alternate infinite ease-out;
+}
+
+@keyframes pulse {
+    to {
+        transform: scale(1.5);
+    }
+}
+
+#menu {
+    flex: 1.5;
+    display: flex;
+    margin-bottom: 2%;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: column;
+    width: min(50%, 500px);
+}
+
+#menu * {
+    pointer-events: all;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.startBtn {
+    display: inline-block;
+    background-color: var(--bginput);
+    padding: 30px 80px;
+    border: none;
+    border-radius: 30px;
+    font-size: 20px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--fginput);
+    box-shadow: 0 3px 0 var(--fginput);
+    cursor: pointer;
+    transition: all 100ms linear;
+}
+
+.startBtn:hover {
+    -moz-transform: translateY(-4px);
+    -o-transform: translateY(-4px);
+    -ms-transform: translateY(-4px);
+    -webkit-transform: translateY(-4px);
+    transform: translateY(-4px);
+    box-shadow: 0 7px 0 var(--fginput);
+}
+
+.startBtn:focus {
+    outline: 0;
+}
+
+.slider {
+    appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: var(--bginput);
+    outline: none;
+    transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--fginput);
+    cursor: pointer;
+}
+
+label {
+    color: #fefefe;
+    letter-spacing: .1rem;
+}
+
+#controls {
+    bottom: 2%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    visibility: collapse;
+}

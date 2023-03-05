@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Con Nome</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="hud">
+        <div class="center">
+            <h1 id="message" class="title">CON NOME</h1>
+            <div id="menu">
+                <div class='container'>
+                    <button id="start" class='startBtn' disabled>START</button>
+                </div>
+
+                <label for="tilesNumber">Numero di tiles: </label>
+                <input type="range" class="slider" name="tilesNumber" id="tilesNumber" min="2" max="20" value="10">
+
+                <label for="wiggliness">Percentuale di serpentuosità percorso: </label>
+                <input type="range" class="slider" name="wiggliness" id="wiggliness" min="0" max="100" value="100">
+
+                <label for="tileSize">Grandezza singola tile: </label>
+                <input type="range" class="slider" name="tileSize" id="tileSize" min="50" max="150" value="100">
+            </div>
+        </div>
+        <div id="controls">
+            <span>premere spazio per fermare la rotazione</span>
+            <span>ripremere per effettuare il lancio</span>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+</body>
+</html>
