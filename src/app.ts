@@ -258,8 +258,6 @@ startButton.onclick = () => {
     startGame(tilesNumber, wigglines, tileSize)
 }
 
-startButton.click()
-
 State.engine.runRenderLoop(() => {
     State.scene.render()
 })
