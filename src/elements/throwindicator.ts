@@ -98,7 +98,7 @@ export default class ThrowIndicator extends BaseElement {
             this.throwConfirmed = true
         }
         if (this.throwConfirmed) {
-            this.golfclubPivot.rotate(Vector3.Right(), -0.1)
+            this.golfclubPivot.rotate(Vector3.Right(), -5 * State.deltaTime)
             if (this.golfclubPivot.absoluteRotationQuaternion.toEulerAngles().x <= 0) {
                 ThrowIndicator.golfhit.play()
                 this.onThrow(this.direction.scale(this.force * this.maxForce))

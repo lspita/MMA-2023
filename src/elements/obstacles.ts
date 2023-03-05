@@ -69,62 +69,62 @@ export const Barriers: Obstacle = {
 export const Wallterfall: Obstacle = {
     curve: false,
     builder: (name: string, tile: Tile) => {
-        let step = tile.wallSize / 2
-        console.log(step)
+        let nWalls = 30
+        let step = tile.groundSize / nWalls
         const pivot = new Mesh(name)
         pivot.position.y = tile.groundSize / 4
 
         let start = -(tile.groundSize / 2) + (step / 2)
-        let end = (tile.groundSize / 2) - (step / 2)
-        for (let i = start; i <= end; i += step) {
-            let initialPos = -pivot.position.y / 6
-
-            const wall1 = MeshBuilder.CreateBox(name + "Wall" + i, {
+        let end = -start
+        let initialPos = -pivot.position.y / 6
+        let offSet = initialPos * 2
+        for (let i = 0; i < nWalls; i++) {
+            let wallZ = start + (i * step)
+            const wallFar = MeshBuilder.CreateBox(name + "WallFar" + wallZ, {
                 height: pivot.position.y * 2 / 3,
                 width: step * 2,
                 depth: step
             })
-            wall1.material = Tile.wallMat
-            wall1.physicsImpostor = new PhysicsImpostor(wall1, PhysicsImpostor.BoxImpostor, tile.impostorParams)
-            wall1.parent = pivot
-            wall1.position = new Vector3(
+            const wallNear = MeshBuilder.CreateBox(name + "WallNear" + wallZ, {
+                height: pivot.position.y * 2 / 3,
+                width: step * 2,
+                depth: step
+            })
+
+            wallFar.material = wallNear.material = Tile.wallMat
+
+            wallFar.physicsImpostor = new PhysicsImpostor(wallFar, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+            wallNear.physicsImpostor = new PhysicsImpostor(wallNear, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+
+            wallFar.parent = wallNear.parent = pivot
+
+            wallFar.position = new Vector3(
                 tile.groundSize / 8,
                 initialPos,
-                i
+                wallZ
             )
-
-            const wall2 = MeshBuilder.CreateBox(name + "Wall" + i, {
-                height: pivot.position.y * 2 / 3,
-                width: step * 2,
-                depth: step
-            })
-            wall2.material = Tile.wallMat
-            wall2.physicsImpostor = new PhysicsImpostor(wall2, PhysicsImpostor.BoxImpostor, tile.impostorParams)
-            wall2.parent = pivot
-            wall2.position = new Vector3(
-                -tile.groundSize / 8,
-                initialPos,
-                i
-            )
+            wallNear.position = wallFar.position.clone()
+            wallNear.position.x *= -1
 
             State.scene.registerBeforeRender(() => {
-                wall1.position.y = (Math.sin(State.time + (i * Math.PI / (end - start))) * initialPos * 2) + (initialPos * 2)
-                wall2.position.y = (Math.cos(State.time + (i * Math.PI / (end - start)) + Math.PI / 2) * initialPos * 2) + (initialPos * 2)
+                let val = Math.sin(State.time + (wallZ * Math.PI / (end - start))) * offSet
+                wallFar.position.y = val + offSet
+                wallNear.position.y = -val + offSet
             })
         }
 
         for (let i = 0; i < 4; i++) {
-            const pole = MeshBuilder.CreateBox(name + "Pole" + i, {
-                height: pivot.position.y * 5 / 3,
+            const pole = MeshBuilder.CreateBox(name + "Pole" + (i + 1), {
+                height: pivot.position.y * 4 / 3,
                 width: step * 2.5,
-                depth: tile.wallSize * 0.9
+                depth: tile.wallSize
             })
             pole.physicsImpostor = new PhysicsImpostor(pole, PhysicsImpostor.BoxImpostor, tile.impostorParams)
             pole.parent = pivot
             pole.position = new Vector3(
                 tile.groundSize / 8 * (i % 2 == 0 ? 1 : -1),
-                -pivot.position.y / 2,
-                (start - tile.wallSize * 0.9 + (step / 2)) * (i < 2 ? 1 : -1)
+                -pivot.position.y / 3,
+                (tile.groundSize / 2) * (i < 2 ? 1 : -1)
             )
         }
 
