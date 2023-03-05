@@ -18,27 +18,29 @@ export default class LevelGenerator {
         this.pathGenerator = new PathGenerator(radius, wiggliness)
     }
 
-    createLevel() {
-
+    createLevel() { // Create path and place tiles and obstacles
         const path = this.pathGenerator.generatePath()
         let lastTile: Tile = null
         let stepDirection: Direction = null
         let lastStepDirection: Direction = null
-        const tileInfo: { straight: boolean, dir: Direction }[] = []
+        let flag: Flag
+        let ball: Ball = null
+        let endPos: Vector3 = null
+        let lastObstacle = 0
 
-        const rawTiles: Tile[] = []
-
-        for (let i = 0; i < path.length && i < this.radius; i++) {
+        for (let i = 0; i < this.radius; i++) { // Foreach step
             const step = path[i]
-
+            // Create tile
             const tile = new Tile(`step${i}`, this.tileSize)
             if (lastTile != null) {
+                // Position with step
                 tile.mesh.position = new Vector3(
                     lastTile.mesh.position.x + (step.x * tile.groundSize),
                     lastTile.mesh.position.y,
                     lastTile.mesh.position.z + (step.y * tile.groundSize)
                 )
 
+                // Get step direction
                 const stepString = JSON.stringify(step)
                 for (const [key, value] of Object.entries(dirInfo)) {
                     if (JSON.stringify(value.coordinates) == stepString) {
@@ -46,55 +48,46 @@ export default class LevelGenerator {
                         break
                     }
                 }
+
+                // Destroy walls
                 tile.destroyWall(dirInfo[stepDirection].opposite)
                 lastTile.destroyWall(stepDirection)
-                tileInfo.push({
-                    straight: stepDirection == lastStepDirection,
-                    dir: stepDirection
-                })
             }
 
-            lastTile = tile
-            lastStepDirection = stepDirection
-            rawTiles.push(lastTile)
-        }
-        let flag: Flag
-        let rawPos: Vector3
-        let ball: Ball = null
-        let endPos: Vector3 = null
-        let lastObstacle = 0
-        rawTiles.forEach((rawTile, i) => {
-            rawPos = rawTile.mesh.position
-            if (i == rawTiles.length - 1) {
-                flag = new Flag("endFlag", rawTile)
+            if (i == this.radius - 1) {
+                // Create flag and ball
+                flag = new Flag("endFlag", tile)
                 ball = new Ball("golfball")
-                ball.mesh.position.y = rawTile.wallSize
+                ball.mesh.position.y = tile.wallSize
                 let box = flag.mesh.getBoundingInfo()
-                flag.mesh.position = new Vector3(rawPos.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
-                endPos = flag.createHole(rawTile)
+                flag.mesh.position = new Vector3(tile.mesh.position.x, flag.mesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, tile.mesh.position.z)
+                endPos = flag.createHole(tile)
                 flag.mesh.position.y += 10
                 flag.follow(ball.mesh)
             }
             else {
+                // Create obstacle in tile
                 if (i >= 1 && i < this.radius - 1 && (Math.round(Math.random()) == 0 || i - lastObstacle > 2)) {
                     lastObstacle = i
                     let obstacle: Obstacles.Obstacle
-                    if (tileInfo[i].straight) {
+                    if (stepDirection == lastStepDirection) {
                         // straight tile
                         obstacle = Utils.random(LevelGenerator.obstacles)
                     } else {
-                        obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.curve == true))
+                        obstacle = Utils.random(LevelGenerator.obstacles.filter(o => o.onlyStraightTiles == false))
                     }
-                    let obstacleMesh = obstacle.builder(`${rawTile.mesh.name}Obstacle`, rawTile)
-                    const coordinates = dirInfo[tileInfo[i].dir].coordinates
+                    let obstacleMesh = obstacle.builder(`${tile.mesh.name}Obstacle`, tile)
+                    const coordinates = dirInfo[stepDirection].coordinates
 
-                    obstacleMesh.rotation.y = Math.atan2(coordinates.y, coordinates.x)
+                    obstacleMesh.rotation.y += Math.atan2(coordinates.y, coordinates.x)
                     let box = obstacleMesh.getBoundingInfo()
-
-                    obstacleMesh.position = new Vector3(rawPos.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, rawPos.z)
+                    obstacleMesh.position = new Vector3(tile.mesh.position.x, obstacleMesh.position.y + Math.abs(box.maximum.y - box.minimum.y) / 2, tile.mesh.position.z)
                 }
             }
-        })
+
+            lastTile = tile
+            lastStepDirection = stepDirection
+        }
         return {
             ball,
             endPos,

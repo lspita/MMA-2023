@@ -3,12 +3,12 @@ import State from "../core/state"
 import Tile from "../core/tileSystem/tile"
 
 export type Obstacle = {
-    curve: boolean
-    builder: (name: string, tile: Tile) => Mesh
+    onlyStraightTiles: boolean // Identifies if mesh can stay only on straight tiles
+    builder: (name: string, tile: Tile) => Mesh // Contructor
 }
 
-export const Wheel: Obstacle = {
-    curve: true,
+export const Wheel: Obstacle = { // Spinning ground wheel
+    onlyStraightTiles: false,
     builder: (name: string, tile: Tile) => {
         let pivot = MeshBuilder.CreateCylinder(name, { height: tile.wallSize * 1.7, diameter: tile.groundSize * 0.02 })
         pivot.physicsImpostor = new PhysicsImpostor(pivot, PhysicsImpostor.NoImpostor, tile.impostorParams)
@@ -33,8 +33,8 @@ export const Wheel: Obstacle = {
     }
 }
 
-export const Barriers: Obstacle = {
-    curve: true,
+export const Barriers: Obstacle = { // Moving squares on ground
+    onlyStraightTiles: false,
     builder: (name: string, tile: Tile) => {
         const boxSize = tile.groundSize / 5
         const pivot = new Mesh(name)
@@ -66,8 +66,8 @@ export const Barriers: Obstacle = {
     }
 }
 
-export const Wallterfall: Obstacle = {
-    curve: false,
+export const Wallterfall: Obstacle = { // Walls wave
+    onlyStraightTiles: true,
     builder: (name: string, tile: Tile) => {
         let nWalls = 30
         let step = tile.groundSize / nWalls
@@ -127,6 +127,63 @@ export const Wallterfall: Obstacle = {
                 (tile.groundSize / 2) * (i < 2 ? 1 : -1)
             )
         }
+
+        return pivot
+    }
+}
+
+export const Propeller: Obstacle = { // Tile size propeller
+    onlyStraightTiles: true,
+    builder: (name: string, tile: Tile) => {
+        const pivot = new Mesh(name)
+
+        const center = MeshBuilder.CreateCylinder(name + "Center", {
+            height: tile.wallSize,
+            diameter: tile.groundSize / 6
+        })
+
+        center.physicsImpostor = new PhysicsImpostor(center, PhysicsImpostor.CylinderImpostor, tile.impostorParams)
+        center.parent = pivot
+        center.rotate(Vector3.Forward(), Math.PI / 2)
+
+        const torus = MeshBuilder.CreateTorus(name + "Arc", {
+            diameter: tile.size,
+            thickness: tile.wallSize,
+            tessellation: 40
+        })
+
+        torus.physicsImpostor = new PhysicsImpostor(torus, PhysicsImpostor.MeshImpostor, tile.impostorParams)
+        torus.parent = pivot
+        torus.rotate(Vector3.Forward(), Math.PI / 2)
+
+        const blade1 = MeshBuilder.CreateBox(name + "Blade1", {
+            width: tile.wallSize / 2,
+            height: tile.size,
+            depth: tile.groundSize / 6
+        })
+
+        const blade2 = MeshBuilder.CreateBox(name + "Blade2", {
+            width: tile.wallSize / 2,
+            height: tile.size,
+            depth: tile.groundSize / 6
+        })
+
+        blade1.rotate(Vector3.Right(), Math.PI / 2)
+        blade2.rotate(Vector3.Right(), Math.PI)
+
+        blade2.rotation.y = Math.PI / 2
+
+        blade1.material = blade2.material = Tile.wallMat
+
+        blade1.physicsImpostor = new PhysicsImpostor(blade1, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+        blade2.physicsImpostor = new PhysicsImpostor(blade2, PhysicsImpostor.BoxImpostor, tile.impostorParams)
+        blade1.parent = blade2.parent = pivot
+
+        State.scene.registerBeforeRender(() => {
+            blade1.rotate(Vector3.Right(), State.deltaTime)
+            blade2.rotate(Vector3.Right(), State.deltaTime)
+            center.rotate(Vector3.Down(), State.deltaTime)
+        })
 
         return pivot
     }

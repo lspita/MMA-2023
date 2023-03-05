@@ -5,6 +5,7 @@ import Tile from "../core/tileSystem/tile"
 import Utils from "../core/utils"
 
 export default class Flag extends BaseElement {
+    //materials and meshes
     static clothMat: StandardMaterial
     private groundPortion: Mesh
     private pole: Mesh
@@ -13,7 +14,7 @@ export default class Flag extends BaseElement {
 
     constructor(name: string, tile: Tile, holeDiameter: number = 8) {
         super()
-
+        // Create the pole
         this.pole = MeshBuilder.CreateCylinder(name + "Pole", { diameter: tile.wallSize * 0.3, height: tile.groundSize * 0.5 })
         this.pole.material = Utils.createMaterial(Flag.material, () => {
             Flag.material = new StandardMaterial("poleMat")
@@ -21,11 +22,14 @@ export default class Flag extends BaseElement {
             return Flag.material
         })
         this.holeDiameter = holeDiameter
+
+        // Create the flag
         this.cloth = this.createFlag(tile)
         this.cloth.parent = this.pole
         this.cloth.position.y = (tile.groundSize / 4) - tile.groundSize / 15
         this.cloth.rotation.y = Math.PI / 2
 
+        // Create ground portion
         this.groundPortion = MeshBuilder.CreateCylinder(name + "Ground", { diameter: this.holeDiameter, height: 1 })
         this.groundPortion.parent = this.pole
         this.groundPortion.position.y = -(tile.groundSize / 4)
@@ -33,15 +37,13 @@ export default class Flag extends BaseElement {
 
         this.pole.position.y = -tile.wallSize * 4
         this.pole.rotation.y = Math.PI / 2
-
         this.mesh = this.pole
     }
 
-    private createFlag(tile: Tile) {
+    private createFlag(tile: Tile) { // Create the different parts of the flag
         let flag1 = MeshBuilder.CreateBox('f1', { height: tile.wallSize * 3.5, width: tile.wallSize * 1.75, depth: tile.wallSize * 0.43 })
         let flag3 = MeshBuilder.CreateBox('f3', { height: tile.wallSize * 3.5, width: tile.wallSize * 1.75, depth: tile.wallSize * 0.43 })
         let flag2 = MeshBuilder.CreateBox('f2', { height: tile.wallSize * 3.5, width: tile.wallSize * 1.75, depth: tile.wallSize * 0.43 })
-
         Utils.createMaterial(Flag.clothMat, () => {
             Flag.clothMat = new StandardMaterial("clothMat")
             Flag.clothMat.diffuseColor = Color3.Red()
@@ -52,25 +54,27 @@ export default class Flag extends BaseElement {
         flag2.material = Flag.clothMat
         flag3.material = Flag.clothMat
 
-        let hinge0 = MeshBuilder.CreateCylinder('cyl0', { diameter: tile.wallSize * 0.35, height: tile.wallSize * 2.625 })
-        let pern1 = new Mesh('f', State.scene)
-        let pern2 = new Mesh('f', State.scene)
-        hinge0.rotation.y = Math.PI / 2
+        // Flag pivot
+        let hinge = MeshBuilder.CreateCylinder('cyl0', { diameter: tile.wallSize * 0.35, height: tile.wallSize * 2.625 })
+        let piv1 = new Mesh('f', State.scene)
+        let piv2 = new Mesh('f', State.scene)
+        hinge.rotation.y = Math.PI / 2
 
-        this.addFlag(flag1, hinge0, pern1, true, tile)
-        this.addFlag(flag2, pern1, pern2, true, tile)
-        this.addFlag(flag3, pern2, null, false, tile)
+        this.addFlag(flag1, hinge, piv1, true, tile)
+        this.addFlag(flag2, piv1, piv2, true, tile)
+        this.addFlag(flag3, piv2, null, false, tile)
 
+        // Flag movement
         State.scene.registerBeforeRender(() => {
-            hinge0.rotation.y = Math.sin(State.time) / 4
-            pern1.rotation.y = Math.cos(State.time) / 3
-            pern2.rotation.y = Math.sin(State.time) / 2
+            hinge.rotation.y = Math.sin(State.time) / 4
+            piv1.rotation.y = Math.cos(State.time) / 3
+            piv2.rotation.y = Math.sin(State.time) / 2
         })
 
-        return hinge0
+        return hinge
     }
 
-    private addFlag(flag: Mesh, pivot: Mesh, nextPivot: Mesh, addHinges: Boolean, tile: Tile) {
+    private addFlag(flag: Mesh, pivot: Mesh, nextPivot: Mesh, addHinges: Boolean, tile: Tile) { // Connect the different parts of the flag
         flag.parent = pivot
         flag.position.x = tile.wallSize * 0.9
         if (nextPivot != null) {
@@ -91,7 +95,7 @@ export default class Flag extends BaseElement {
             hinge2.position.y = -tile.wallSize
         }
     }
-    createHole(tile: Tile, height: number = 5) {
+    createHole(tile: Tile, height: number = 5) { // Create hole in tile
         const holemesh = MeshBuilder.CreateCylinder("", { diameter: this.holeDiameter, height: height + 1 })
         const endPos = new Vector3(
             this.mesh.position.x,
@@ -105,6 +109,8 @@ export default class Flag extends BaseElement {
         const holeCSG = CSG.FromMesh(holemesh)
         const subtraction = groundCSG.subtract(holeCSG)
         holemesh.dispose()
+
+        // Mesh reassignement
         let name = tile.ground.name
         let pos = tile.ground.position
         let impostorParams = tile.impostorParams
@@ -117,7 +123,7 @@ export default class Flag extends BaseElement {
         return endPos
     }
 
-    follow(mesh: Mesh) {
+    follow(mesh: Mesh) { // Rotate flag to follow mesh
         const startY = mesh.position.y
         const flagStartY = this.mesh.position.y
         const startRotY = this.mesh.rotation.y

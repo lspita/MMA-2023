@@ -23,6 +23,7 @@ export default class ThrowIndicator extends BaseElement {
         this.currentFunction = this.spin.bind(this)
         this.onThrow = onThrow
 
+        // Create the triangle mesh
         this.mesh = MeshBuilder.CreatePolyhedron(name, {
             sizeX: 5,
             sizeY: 2,
@@ -39,7 +40,6 @@ export default class ThrowIndicator extends BaseElement {
                 ]
             }
         })
-
         this.mesh.material = Utils.createMaterial(ThrowIndicator.material, () => {
             ThrowIndicator.material = new StandardMaterial("arrowMat")
             ThrowIndicator.material.diffuseColor = Color3.Yellow()
@@ -47,6 +47,7 @@ export default class ThrowIndicator extends BaseElement {
             return ThrowIndicator.material
         })
 
+        // Create golf club
         new GolfClub("golfClub", (element) => {
             element.mesh.scaling.scaleInPlace(2)
             const meshBoxInfo = mesh.getBoundingInfo()
@@ -65,27 +66,30 @@ export default class ThrowIndicator extends BaseElement {
                 this.pivot.z + 5
             )
             onMeshesLoaded()
-            this.mesh.registerBeforeRender(this.currentFunction)
+
+            // Start animation
+            State.scene.registerBeforeRender(this.currentFunction)
         })
     }
 
     spin() {
+        // Rotation - First launch phase
         this.mesh.rotateAround(this.pivot, Vector3.Up(), State.deltaTime * 1.5)
         this.golfclubPivot.rotateAround(this.pivot, Vector3.Up(), State.deltaTime * 1.5)
 
         this.direction = this.mesh.position.subtract(this.pivot)
         if (State.keys[" "]) {
-            this.mesh.unregisterBeforeRender(this.currentFunction)
-            this.currentFunction = this.scale.bind(this)
+            State.scene.unregisterBeforeRender(this.currentFunction)
+            this.currentFunction = this.swing.bind(this)
             State.keys[" "] = false
-            this.mesh.registerBeforeRender(this.currentFunction)
+            State.scene.registerBeforeRender(this.currentFunction)
         }
     }
 
     private lastValue: number = 0
     private throwConfirmed: boolean = false
-
-    scale() {
+    swing() {
+        // Swing - Second launch phase
         if (!this.throwConfirmed) {
             this.force = 20 * Math.abs((State.time / 2) - Math.floor((State.time / 2) + 1 / 2)) // triangular pulse
             this.mesh.translate(Vector3.Forward(), this.force - this.lastValue)
@@ -98,16 +102,19 @@ export default class ThrowIndicator extends BaseElement {
             this.throwConfirmed = true
         }
         if (this.throwConfirmed) {
+            // Finish golf club movement
             this.golfclubPivot.rotate(Vector3.Right(), -5 * State.deltaTime)
             if (this.golfclubPivot.absoluteRotationQuaternion.toEulerAngles().x <= 0) {
                 ThrowIndicator.golfhit.play()
+                // Throw
                 this.onThrow(this.direction.scale(this.force * this.maxForce))
             }
         }
     }
 
     destroy() {
-        this.mesh.unregisterBeforeRender(this.currentFunction)
+        // Delete all meshes and animations
+        State.scene.unregisterBeforeRender(this.currentFunction)
         this.mesh.dispose()
         this.golfclubPivot.dispose()
         this.throwConfirmed = false

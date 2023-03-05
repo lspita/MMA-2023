@@ -1,6 +1,6 @@
 import { ArcRotateCamera, Engine, Scene } from "@babylonjs/core"
 
-export default class State {
+export default class State { // Shared objects between elements
     static scene: Scene
     static engine: Engine
     static camera: ArcRotateCamera

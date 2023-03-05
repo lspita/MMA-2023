@@ -29,7 +29,7 @@ export default class PathGenerator {
         this.size = (this.radius * 2) + 1
     }
 
-    private getNeighbours(cell: Cell): Cell[] {
+    private getNeighbours(cell: Cell): Cell[] { // Get possible neighbours of given cell
         const neighbours: { row: number, col: number }[] = []
         if (cell.row > 0) neighbours.push({ row: cell.row - 1, col: cell.col })
         if (cell.row < this.size - 1) neighbours.push({ row: cell.row + 1, col: cell.col })
@@ -37,10 +37,10 @@ export default class PathGenerator {
         if (cell.col < this.size - 1) neighbours.push({ row: cell.row, col: cell.col + 1 })
         return neighbours
             .filter(neighbour => this.matrix[neighbour.row][neighbour.col].state != CellState.Blocked)
-            .map(neighbour => new Cell(neighbour.row, neighbour.col, this.matrix[neighbour.row][neighbour.col].state))
+            .map(neighbour => new Cell(neighbour.row, neighbour.col, this.matrix[neighbour.row][neighbour.col].state)) // Convert every row/col obj to cell
     }
 
-    private getRandomCell(openCells: Cell[], currentPath: Cell[]): Cell {
+    private getRandomCell(openCells: Cell[], currentPath: Cell[]): Cell { // Get random open cell with weight consideration
         const openPathCells = currentPath.filter(c => c.state == CellState.Open)
         const pathWeight = openPathCells.length * this.wiggliness * 2
         const nonPathWeight = (openCells.length - openPathCells.length) * 1
@@ -54,18 +54,18 @@ export default class PathGenerator {
         }
     }
 
-    private setCellValue<T>(matrix: T[][], cell: Cell, value: T) {
+    private setCellValue<T>(matrix: T[][], cell: Cell, value: T) { // Quick function to set cell value with undefined controls 
         if (matrix[cell.row] === undefined) {
             matrix[cell.row] = []
         }
         matrix[cell.row][cell.col] = value
     }
 
-    private getCellValue<T>(matrix: T[][], cell: Cell): T | undefined {
+    private getCellValue<T>(matrix: T[][], cell: Cell): T | undefined { // Quick function to get cell value with undefined controls
         return matrix[cell.row]?.[cell.col]
     }
 
-    private findPath(start: Cell, end: Cell): Cell[] | null {
+    private findPath(start: Cell, end: Cell): Cell[] | null { // Dijkstra path finding algorithm
         let distances: number[][] = []
         let currentCells: Cell[] = [start]
         let currentDistance: number = 0
@@ -102,7 +102,7 @@ export default class PathGenerator {
         return path
     }
 
-    private getOpenCells() {
+    private getOpenCells() { // Matrix to array of open cells
         const openCells: Cell[] = []
         this.matrix.forEach(row => row.forEach(cell => {
             if (cell.state == CellState.Open) {
@@ -113,6 +113,7 @@ export default class PathGenerator {
     }
 
     generatePath(): { x: number, y: number }[] {
+        // Fill matrix
         this.matrix = []
         for (let i = 0; i < this.size; i++) {
             this.matrix[i] = []
@@ -121,7 +122,10 @@ export default class PathGenerator {
             }
         }
 
+        // Center cell as start
         const startCell = this.matrix[this.radius][this.radius]
+
+        // Random end cell in edges
         let endCell: Cell
         const randomSide = Math.floor(Math.random() * 4)
         const randomCellIndex = Math.floor(Math.random() * this.size)
@@ -148,9 +152,9 @@ export default class PathGenerator {
             throw new Error("Impossible path")
         }
         while (true) {
-            const openCells = this.getOpenCells()
-            if (openCells.length == 0) {
-                // transform to x, y cordinates with center as 0, 0 and the steps to do
+            const openCells = this.getOpenCells() // Get open cells
+            if (openCells.length == 0) { // If there aren't any, the path is generated
+                // Transform to x, y cordinates with matrix center as 0, 0 and the steps to do
                 let lastCell = finalPath[0]
                 const result: { x: number, y: number }[] = []
                 finalPath.forEach(cell => {
@@ -162,15 +166,15 @@ export default class PathGenerator {
                 })
                 return result
             }
-            const randomOpenCell = this.getRandomCell(openCells, finalPath)
-            randomOpenCell.state = CellState.Blocked
-            if (finalPath.includes(randomOpenCell)) {
-                const newPath = this.findPath(startCell, endCell)
-                if (newPath == null) {
-                    randomOpenCell.state = CellState.Forced
+            const randomOpenCell = this.getRandomCell(openCells, finalPath) // Get random open cell
+            randomOpenCell.state = CellState.Blocked // Set as blocked
+            if (finalPath.includes(randomOpenCell)) { // If it's in the path
+                const newPath = this.findPath(startCell, endCell) // Recalculate shortest path
+                if (newPath == null) { // If can't recalculate
+                    randomOpenCell.state = CellState.Forced // Set cell as forced open
                 }
                 else {
-                    finalPath = newPath
+                    finalPath = newPath // Set recalculated path as new path
                 }
             }
         }

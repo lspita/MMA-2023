@@ -12,6 +12,8 @@ export default class Ball extends BaseElement {
             return Ball.material
         })
         this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.SphereImpostor, { mass: 1 })
+
+        // Friction
         this.mesh.physicsImpostor.physicsBody.linearDamping = 0.6
         this.mesh.physicsImpostor.physicsBody.angularDamping = 0.8
     }

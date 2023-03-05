@@ -3,6 +3,8 @@ import BaseElement from "../elements/base"
 import Utils from "../utils"
 
 export type Direction = typeof Tile.directions[number]
+
+// Get informations about direction
 export type DirInfo = {
     opposite: Direction
     coordinates: { x: number, y: number }
@@ -29,12 +31,11 @@ export const dirInfo: {
 }
 
 export default class Tile extends BaseElement {
-    static readonly directions = ["east", "north", "west", "south"] as const
+    static readonly directions = ["east", "north", "west", "south"] as const // possible directions
     static wallMat: StandardMaterial = null
-    private size: number
-    hasObstacle: boolean = false
-    public groundSize: number
-    public wallSize: number
+    size: number
+    groundSize: number
+    wallSize: number
     ground: Mesh
     impostorParams: PhysicsImpostorParameters = { mass: 0, friction: 0.5, restitution: 0.5 }
 
@@ -45,12 +46,14 @@ export default class Tile extends BaseElement {
         this.groundSize = this.size - 3
         this.wallSize = this.size - this.groundSize
 
+        // Create pivot
         this.mesh = new Mesh(name)
         this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.NoImpostor, this.impostorParams)
+
+        // Create ground
         this.ground = MeshBuilder.CreateBox(name + "ground", { width: this.groundSize, depth: this.groundSize, height: this.groundSize - this.wallSize })
         this.ground.physicsImpostor = new PhysicsImpostor(this.ground, PhysicsImpostor.BoxImpostor, this.impostorParams)
         this.ground.parent = this.mesh
-
         this.ground.material = Utils.createMaterial(Tile.material, () => {
             Tile.material = new StandardMaterial("groundMat")
             let groundTexture = new Texture(require("/public/assets/textures/tilefloor.png"))
@@ -60,19 +63,21 @@ export default class Tile extends BaseElement {
             return Tile.material
         })
 
+        // Create walls
         Utils.createMaterial(Tile.wallMat, () => {
             Tile.wallMat = new StandardMaterial("wallMat")
             Tile.wallMat.diffuseColor.set(165 / 255, 42 / 255, 42 / 255)
             return Tile.wallMat
         })
-
         for (let i = 0; i < 4; i++) {
             this.createWall(Tile.directions[i])
         }
+
+        // Set position
         this.mesh.position.y = -(this.groundSize - this.wallSize) / 2
     }
 
-    destroyWall(direction: Direction) {
+    destroyWall(direction: Direction) { // Destroy wall in given direction
         this.mesh.getChildMeshes(true).forEach(mesh => {
             if (mesh.name.includes(direction)) {
                 this.mesh.removeChild(mesh)
@@ -81,13 +86,15 @@ export default class Tile extends BaseElement {
         })
     }
 
-    private createWall(direction: Direction) {
+    private createWall(direction: Direction) { // Create wall in given direction
         let i = Tile.directions.indexOf(direction)
         let wall = MeshBuilder.CreateBox(
             `${this.mesh.name}${direction}Wall`,
             { width: this.wallSize, height: this.size, depth: this.groundSize }
         )
         let angle = i * Math.PI / 2
+
+        // Rotate and place wall
         wall.rotation.y = angle
         wall.position.x = Math.cos(angle) * this.size / 2
         wall.position.z = Math.sin(angle) * this.size / 2
@@ -95,6 +102,7 @@ export default class Tile extends BaseElement {
         wall.physicsImpostor = new PhysicsImpostor(wall, PhysicsImpostor.BoxImpostor, this.impostorParams)
         wall.parent = this.mesh
 
+        // Create the two angles
         let nextDir = Tile.directions[(i + 1 === Tile.directions.length ? 0 : i + 1)]
         this.createWallAngle(direction, nextDir, angle + (Math.PI / 4))
 
@@ -102,7 +110,8 @@ export default class Tile extends BaseElement {
         this.createWallAngle(prevDir, direction, angle - (Math.PI / 4))
     }
 
-    private createWallAngle(dir1: Direction, dir2: Direction, edgeAngle: number) {
+    private createWallAngle(dir1: Direction, dir2: Direction, edgeAngle: number) { // Create angle between two walls
+        // Create and position external angle
         let wallAngle = MeshBuilder.CreateBox(
             `${this.mesh.name}${dir1}${dir2}WallAngle`,
             { width: this.wallSize, height: this.size, depth: this.wallSize }
@@ -118,6 +127,7 @@ export default class Tile extends BaseElement {
         wallAngle.physicsImpostor = new PhysicsImpostor(wallAngle, PhysicsImpostor.NoImpostor, this.impostorParams)
         wallAngle.parent = this.mesh
 
+        // Create and position internal angle
         let diagonalSize = this.wallSize * 2.5
         let wallDiagonal = MeshBuilder.CreatePolyhedron(`${dir1}${dir2}DiagonalAngle`, {
             sizeX: diagonalSize,
