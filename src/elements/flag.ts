@@ -5,7 +5,6 @@ import Tile from "../core/tileSystem/tile"
 import Utils from "../core/utils"
 
 export default class Flag extends BaseElement {
-    //materials and meshes
     static clothMat: StandardMaterial
     private groundPortion: Mesh
     private pole: Mesh
@@ -95,7 +94,7 @@ export default class Flag extends BaseElement {
             hinge2.position.y = -tile.wallSize
         }
     }
-    createHole(tile: Tile, height: number = 5) { // Create hole in tile
+    createHole(tile: Tile, height: number = 5) { // Dig hole in tile
         const holemesh = MeshBuilder.CreateCylinder("", { diameter: this.holeDiameter, height: height + 1 })
         const endPos = new Vector3(
             this.mesh.position.x,
