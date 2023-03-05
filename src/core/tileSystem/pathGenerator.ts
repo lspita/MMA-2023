@@ -26,7 +26,7 @@ export default class PathGenerator {
     constructor(matrixRadius: number, wiggliness: number) {
         this.radius = matrixRadius
         this.wiggliness = wiggliness
-        this.size = (this.radius * 2 + 1)
+        this.size = (this.radius * 2) + 1
     }
 
     private getNeighbours(cell: Cell): Cell[] {
@@ -42,7 +42,7 @@ export default class PathGenerator {
 
     private getRandomCell(openCells: Cell[], currentPath: Cell[]): Cell {
         const openPathCells = currentPath.filter(c => c.state == CellState.Open)
-        const pathWeight = openPathCells.length * this.wiggliness
+        const pathWeight = openPathCells.length * this.wiggliness * 2
         const nonPathWeight = (openCells.length - openPathCells.length) * 1
         const totalWeight = pathWeight + nonPathWeight
         var r = Math.random() * totalWeight
