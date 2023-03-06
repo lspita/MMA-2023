@@ -6,7 +6,7 @@ import LevelGenerator from "./core/tileSystem/levelGenerator"
 import * as CANNON from "cannon"
 import Tree from "./elements/tree"
 import { Color4 } from "@babylonjs/core/Maths/math.color"
-import ThrowIndicator from "./elements/throwIndicator"
+import ThrowIndicator from "./elements/throwindicator"
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement
 const messageHeading = document.getElementById("message") as HTMLHeadElement
